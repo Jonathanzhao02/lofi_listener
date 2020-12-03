@@ -69,6 +69,7 @@ export default class SongChangeListener extends EventEmitter {
     init(): void {
         extractLatestText(this.url).then(song => {
             this.currentSong = song;
+            this.lastSong = 'None';
             this.processId = setInterval(this.loop.bind(this), 5000);
         });
     }

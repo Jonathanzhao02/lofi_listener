@@ -1,14 +1,11 @@
 // import * as ytdl from 'discord-ytdl-core';
+import { TextChannel } from 'discord.js';
 import { getInfo, videoFormat } from 'ytdl-core';
+import Command from './Command';
+import DiscordClient from './DiscordClient';
 import SongChangeListener from './SongChangeListener';
-import * as Discord from 'discord.js';
-
-const { TEST_BOT_TOKEN, BOT_TOKEN } = require('../../config.json');
-const isDevelopment = process.env.NODE_ENV.valueOf() !== 'production';
-const client = new Discord.Client();
 
 const VID_URL: string = 'https://www.youtube.com/watch?v=DWcJFNfaw9c'; // LOFI HIP HOP SLEEP TO
-// const VID_URL: string = 'https://www.youtube.com/watch?v=xbFIL5FSHLk'; // JAPAN
 
 function nextBestFormat(formats: videoFormat[], isLive: boolean): videoFormat {
 	let filter = (format: videoFormat): boolean => format.audioBitrate && true;
@@ -22,64 +19,69 @@ function nextBestFormat(formats: videoFormat[], isLive: boolean): videoFormat {
 const main = async (): Promise<void> => {
     const info = await getInfo(VID_URL);
     const bestFormat = nextBestFormat(info.formats, info.player_response.videoDetails.isLiveContent);
+    const client = new DiscordClient();
+    client.broadcastSound(bestFormat.url);
 
     // const stream = ytdl.arbitraryStream(bestFormat.url, { filter: 'audioonly', opusEncoded: true, encoderArgs: ['-af', 'bass=g=10'], });
-    client.login(isDevelopment ? TEST_BOT_TOKEN : BOT_TOKEN);
-    client.on('ready', () => {
-        console.log('Bot logged in');
-    });
-
-    const guilds = new Map<Discord.Guild, Discord.Channel>();
-    const broadcast = client.voice.createBroadcast();
-    broadcast.play(bestFormat.url);
 
     const songChangeListener = new SongChangeListener(bestFormat.url);
     songChangeListener.init();
     songChangeListener.on('change', (current) => {
-        guilds.forEach(val => {
-            if (val.isText()) val.send(`Song changed to ${current}`);
-        });
+        client.broadcastMessage(`Now Playing: ${current}`);
     });
 
-    client.on('message', msg => {
-        if (msg.author.bot || !msg.guild) return;
-        guilds.set(msg.guild, msg.channel);
-
-        if (msg.content === '&join') {
-            if (!msg.member.voice.channel) return msg.channel.send('You\'re not in a voice channel?');
-            msg.member.voice.channel.join()
-            .then(connection => {
-                let dispatcher = connection.play(broadcast, {
-                    type: 'opus'
-                })
-                .on('finish', () => {
-                    dispatcher.destroy();
-                    msg.guild.me.voice.channel.leave();
-                });
+    const joinCommand = new Command(['play', 'join', 'p'], (client, msg) => {
+        if (!msg.member.voice.channel) return msg.channel.send('You\'re not in a voice channel?');
+        msg.member.voice.channel.join()
+        .then(connection => {
+            let dispatcher = connection.play(client.getBroadcast(), {
+                type: 'opus'
+            })
+            .on('finish', () => {
+                dispatcher.destroy();
+                msg.guild.me.voice.channel.leave();
             });
-        } else if (msg.content === '&np' || msg.content === '&nowplaying') {
-            msg.channel.send(songChangeListener.getCurrentSong());
-        } else if (msg.content === '&lp' || msg.content === '&lastplayed') {
-            msg.channel.send(songChangeListener.getLastSong());
-        } else if (msg.content === '&s' || msg.content === '&stop') {
-            if (guilds.has(msg.guild)) {
-                const channel = guilds.get(msg.guild);
-                if (channel.isText()) channel.send('Will no longer send updates!');
-            }
-            guilds.delete(msg.guild);
-        } else if (msg.content === '&leave') {
-            msg.guild.me.voice.channel.leave();
+
+            connection.on('disconnect', () => {
+                dispatcher.destroy();
+                client.unregisterGuild(msg.guild);
+            });
+        });
+        if (msg.channel instanceof TextChannel) client.registerGuild(msg.guild, msg.channel, msg.member.voice.channel);
+    });
+
+    const npCommand = new Command(['nowplaying', 'np'], (client, msg) => {
+        msg.channel.send(songChangeListener.getCurrentSong());
+    });
+
+    const lpCommand = new Command(['lastplayed', 'lp'], (client, msg) => {
+        msg.channel.send(songChangeListener.getLastSong());
+    });
+
+    const startCommand = new Command(['start'], (client, msg) => {
+        if (msg.channel instanceof TextChannel) {
+            msg.channel.send('Will now send updates.');
+            client.registerGuildText(msg.guild, msg.channel);
         }
     });
 
-    client.on('error', err => {
-        console.log(err);
+    const stopCommand = new Command(['stop'], (client, msg) => {
+        msg.channel.send('Will no longer send updates.');
+        client.unregisterGuildText(msg.guild);
     });
+
+    const leaveCommand = new Command(['leave'], (client, msg) => {
+        msg.guild.me.voice.channel.leave();
+        client.unregisterGuild(msg.guild);
+    });
+
+    client.registerCommands([joinCommand, npCommand, lpCommand, startCommand, stopCommand, leaveCommand]);
 
     process.on('SIGINT', () => {
         songChangeListener.end();
         console.log('Logging out');
         client.destroy();
+        process.exit(0);
     });
 };
 
