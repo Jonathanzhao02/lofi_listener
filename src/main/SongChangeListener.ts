@@ -8,6 +8,22 @@ const BLACKLISTED = ***REMOVED***
     '’': '\''
 ***REMOVED***;
 
+function compare(x: string, y: string): number ***REMOVED***
+    if (x.length > y.length) ***REMOVED***
+        const temp = x;
+        x = y;
+        y = temp;
+    ***REMOVED***
+
+    let diff = y.length - x.length;
+
+    for (let i = 0; i < x.length; i++) ***REMOVED***
+        if (x.charAt(i) !== y.charAt(i)) diff++;
+    ***REMOVED***
+
+    return diff;
+***REMOVED***
+
 function extractSong(text: string): string ***REMOVED***
     const lines = text.split('\n');
     
@@ -30,6 +46,19 @@ function isValidUrl(url: string): boolean ***REMOVED***
     ***REMOVED*** catch (err) ***REMOVED***
         return false;
     ***REMOVED***
+***REMOVED***
+
+function extractLatestGif(url: string): Promise<boolean> ***REMOVED***
+    return new Promise<boolean>((resolve) => ***REMOVED***
+        exec(`ffmpeg -i $***REMOVED***url***REMOVED*** -hide_banner -loglevel fatal -vframes 30 -vf fps=15,select='not(mod(n\\,3))' -y latest.gif`, (err, stdout, stderr) => ***REMOVED***
+            if (err || stderr) ***REMOVED***
+                console.log(`err: $***REMOVED***err ? err : stderr***REMOVED***`);
+                resolve(false);
+            ***REMOVED*** else ***REMOVED***
+                resolve(true);
+            ***REMOVED***
+        ***REMOVED***);
+    ***REMOVED***);
 ***REMOVED***
 
 function extractLatestFrame(url: string): Promise<boolean> ***REMOVED***
@@ -67,9 +96,11 @@ function extractLatestText(url: string): Promise<string> ***REMOVED***
 
 export default class SongChangeListener extends EventEmitter ***REMOVED***
     private url: string;
+    private processId: ReturnType<typeof setTimeout>
+
     private currentSong: string;
     private lastSong: string;
-    private processId: ReturnType<typeof setTimeout>
+    private songsPlayed: number;
 
     constructor(url: string) ***REMOVED***
         super();
@@ -81,17 +112,23 @@ export default class SongChangeListener extends EventEmitter ***REMOVED***
         extractLatestText(this.url).then(song => ***REMOVED***
             this.currentSong = song;
             this.lastSong = 'None';
+            this.songsPlayed = 0;
+            extractLatestGif(this.url);
             this.processId = setInterval(this.loop.bind(this), 5000);
         ***REMOVED***);
     ***REMOVED***
 
     loop(): void ***REMOVED***
         extractLatestText(this.url).then(song => ***REMOVED***
-            if (song?.valueOf() !== this.currentSong.valueOf()) ***REMOVED***
+            if (song?.valueOf() !== this.currentSong.valueOf() && compare(song, this.currentSong) > 3) ***REMOVED***
                 this.lastSong = this.currentSong;
                 this.currentSong = song;
-                this.emit('change', this.currentSong, this.lastSong);
+                this.songsPlayed++;
+                fs.copyFileSync('latest.gif', 'latest_old.gif');
                 fs.copyFileSync('latest_backup.jpg', 'latest_old.jpg');
+                extractLatestGif(this.url).then(hasSavedGif => ***REMOVED***
+                    this.emit('change', this.currentSong, this.lastSong);
+                ***REMOVED***);
             ***REMOVED***
         ***REMOVED***);
     ***REMOVED***
@@ -106,5 +143,9 @@ export default class SongChangeListener extends EventEmitter ***REMOVED***
 
     getLastSong(): string ***REMOVED***
         return this.lastSong;
+    ***REMOVED***
+
+    getSongsPlayed(): number ***REMOVED***
+        return this.songsPlayed;
     ***REMOVED***
 ***REMOVED***

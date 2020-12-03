@@ -34,7 +34,7 @@ const main = async (): Promise<void> => ***REMOVED***
             new MessageEmbed()
                 .setColor('#66ccff')
                 .setTitle('▶️ Now Playing')
-                .attachFiles(['latest.jpg'])
+                .attachFiles(['latest.gif'])
                 .setDescription(current)
         );
     ***REMOVED***);
@@ -53,10 +53,10 @@ const main = async (): Promise<void> => ***REMOVED***
 
             connection.on('disconnect', () => ***REMOVED***
                 dispatcher.destroy();
-                client.unregisterGuild(msg.guild);
+                client.removeGuild(msg.guild);
             ***REMOVED***);
         ***REMOVED***);
-        if (msg.channel instanceof TextChannel) client.registerGuild(msg.guild, msg.channel, msg.member.voice.channel);
+        if (msg.channel instanceof TextChannel) client.addGuild(msg.guild, msg.channel, msg.member.voice.channel);
     ***REMOVED***);
 
     const npCommand = new Command(['nowplaying', 'np'], (client, msg) => ***REMOVED***
@@ -64,7 +64,7 @@ const main = async (): Promise<void> => ***REMOVED***
             new MessageEmbed()
                 .setColor('#66ccff')
                 .setTitle('▶️ Currently Playing')
-                .attachFiles(['latest.jpg'])
+                .attachFiles(['latest.gif'])
                 .setDescription(songChangeListener.getCurrentSong())
         );
     ***REMOVED***);
@@ -74,7 +74,7 @@ const main = async (): Promise<void> => ***REMOVED***
             new MessageEmbed()
                 .setColor('#66ccff')
                 .setTitle('⏪ Last Played')
-                .attachFiles(['latest_old.jpg'])
+                .attachFiles(['latest_old.gif'])
                 .setDescription(songChangeListener.getLastSong())
         );
     ***REMOVED***);
@@ -82,18 +82,20 @@ const main = async (): Promise<void> => ***REMOVED***
     const startCommand = new Command(['start'], (client, msg) => ***REMOVED***
         if (msg.channel instanceof TextChannel) ***REMOVED***
             msg.channel.send('✅ Will now send updates.');
-            client.registerGuildText(msg.guild, msg.channel);
+            const guildConstruct = client.getGuild(msg.guild);
+            if (guildConstruct) guildConstruct.text = msg.channel;
         ***REMOVED***
     ***REMOVED***);
 
     const stopCommand = new Command(['stop'], (client, msg) => ***REMOVED***
         msg.channel.send('❌ Will no longer send updates.');
-        client.unregisterGuildText(msg.guild);
+        const guildConstruct = client.getGuild(msg.guild);
+        if (guildConstruct) guildConstruct.text = null;
     ***REMOVED***);
 
     const leaveCommand = new Command(['leave'], (client, msg) => ***REMOVED***
         msg.guild.me.voice.channel.leave();
-        client.unregisterGuild(msg.guild);
+        client.removeGuild(msg.guild);
     ***REMOVED***);
 
     const statCommand = new Command(['stats', 'uptime', 'info'], (client, msg) => ***REMOVED***
@@ -101,6 +103,7 @@ const main = async (): Promise<void> => ***REMOVED***
             new MessageEmbed()
                 .setColor('#0099ff')
                 .setTitle('📊 Stats')
+                .addField('🎶 Songs Played', songChangeListener.getSongsPlayed())
                 .addField('⏱️ Runtime', client.etime())
                 .addField('📅 Up Since', client.getStartDate().toUTCString())
         );

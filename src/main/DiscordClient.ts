@@ -30,6 +30,10 @@ export default class DiscordClient ***REMOVED***
             this.startTime = Date.now();
         ***REMOVED***);
 
+        this.client.on('error', err => ***REMOVED***
+            this.destroy();
+        ***REMOVED***);
+
         this.client.on('message', msg => ***REMOVED***
             if (msg.author.bot || !msg.guild) return;
             if (!msg.content.startsWith(BOT_PREFIX)) return;
@@ -54,40 +58,20 @@ export default class DiscordClient ***REMOVED***
         ***REMOVED***);
     ***REMOVED***
 
-    registerGuild(guild: Discord.Guild, text?: Discord.TextChannel, voice?: Discord.VoiceChannel): GuildContext ***REMOVED***
+    addGuild(guild: Discord.Guild, text?: Discord.TextChannel, voice?: Discord.VoiceChannel): GuildContext ***REMOVED***
         const guildContext: GuildContext = ***REMOVED*** 'text': text, 'voice': voice ***REMOVED***;
         this.guilds.set(guild, guildContext);
         return guildContext;
     ***REMOVED***
 
-    registerGuildText(guild: Discord.Guild, text: Discord.TextChannel): GuildContext ***REMOVED***
-        const guildContext = this.guilds.get(guild);
-        if (guildContext) guildContext.text = text;
-        return guildContext;
-    ***REMOVED***
-
-    registerGuildVoice(guild: Discord.Guild, voice: Discord.VoiceChannel): GuildContext ***REMOVED***
-        const guildContext = this.guilds.get(guild);
-        if (guildContext) guildContext.voice = voice;
-        return guildContext;
-    ***REMOVED***
-
-    unregisterGuild(guild: Discord.Guild): GuildContext ***REMOVED***
+    removeGuild(guild: Discord.Guild): GuildContext ***REMOVED***
         const guildContext = this.guilds.get(guild);
         this.guilds.delete(guild);
         return guildContext;
     ***REMOVED***
 
-    unregisterGuildText(guild: Discord.Guild): GuildContext ***REMOVED***
-        const guildContext = this.guilds.get(guild);
-        if (guildContext) guildContext.text = undefined;
-        return guildContext;
-    ***REMOVED***
-
-    unregisterGuildVoice(guild: Discord.Guild): GuildContext ***REMOVED***
-        const guildContext = this.guilds.get(guild);
-        if (guildContext) guildContext.voice = undefined;
-        return guildContext;
+    getGuild(guild: Discord.Guild): GuildContext ***REMOVED***
+        return this.guilds.get(guild);
     ***REMOVED***
 
     registerCommands(cmd: Command | Command[]): void ***REMOVED***
@@ -110,16 +94,16 @@ export default class DiscordClient ***REMOVED***
         let etime = Date.now() - this.startTime;
         const times = [];
         let result = '';
-        DiscordClient.MILLIS.forEach(val => ***REMOVED***
-            times.push(Math.floor(etime / val));
-            etime = etime % val;
-        ***REMOVED***);
-        times.forEach((val, idx) => ***REMOVED***
-            if (val > 0) ***REMOVED***
-                result += `, $***REMOVED***DiscordClient.MILLIS_LABELS[idx]***REMOVED***: \`$***REMOVED***times[idx]***REMOVED***\``;
+
+        for (let i = 0; i < DiscordClient.MILLIS.length; i++) ***REMOVED***
+            const time = Math.floor(etime / DiscordClient.MILLIS[i]);
+            if (time > 0) ***REMOVED***
+                result = `$***REMOVED***DiscordClient.MILLIS_LABELS[i]***REMOVED***: \`$***REMOVED***time***REMOVED***\``;
+                break;
             ***REMOVED***
-        ***REMOVED***);
-        return result.substr(2);
+        ***REMOVED***
+
+        return result;
     ***REMOVED***
 
     getStartDate(): Date ***REMOVED***
