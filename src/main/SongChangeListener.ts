@@ -3,11 +3,20 @@ import ***REMOVED*** exception ***REMOVED*** from 'console';
 import ***REMOVED*** EventEmitter ***REMOVED*** from 'events';
 import ***REMOVED*** URL ***REMOVED*** from 'url';
 
+const BLACKLISTED = ***REMOVED***
+    '’': '\''
+***REMOVED***;
+
 function extractSong(text: string): string ***REMOVED***
     const lines = text.split('\n');
     
-    for (const line of lines) ***REMOVED***
+    for (let line of lines) ***REMOVED***
         if (line.indexOf('-') > 0) ***REMOVED***
+
+            for (const char in BLACKLISTED) ***REMOVED***
+                line = line.replace(new RegExp(char, 'g'), BLACKLISTED[char]);
+            ***REMOVED***
+
             return line.trim();
         ***REMOVED***
     ***REMOVED***

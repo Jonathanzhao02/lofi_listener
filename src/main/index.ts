@@ -1,5 +1,5 @@
 // import * as ytdl from 'discord-ytdl-core';
-import ***REMOVED*** TextChannel ***REMOVED*** from 'discord.js';
+import ***REMOVED*** MessageEmbed, TextChannel ***REMOVED*** from 'discord.js';
 import ***REMOVED*** getInfo, videoFormat ***REMOVED*** from 'ytdl-core';
 import Command from './Command';
 import DiscordClient from './DiscordClient';
@@ -75,7 +75,17 @@ const main = async (): Promise<void> => ***REMOVED***
         client.unregisterGuild(msg.guild);
     ***REMOVED***);
 
-    client.registerCommands([joinCommand, npCommand, lpCommand, startCommand, stopCommand, leaveCommand]);
+    const statCommand = new Command(['stats', 'uptime', 'info'], (client, msg) => ***REMOVED***
+        msg.channel.send(
+            new MessageEmbed()
+                .setColor('#0099ff')
+                .setTitle('📊 Stats')
+                .addField('⏱️ Runtime', client.etime())
+                .addField('📅 Up Since', client.getStartDate().toUTCString())
+        );
+    ***REMOVED***);
+
+    client.registerCommands([joinCommand, npCommand, lpCommand, startCommand, stopCommand, leaveCommand, statCommand]);
 
     process.on('SIGINT', () => ***REMOVED***
         songChangeListener.end();
