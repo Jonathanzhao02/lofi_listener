@@ -2,6 +2,7 @@ import ***REMOVED*** exec ***REMOVED*** from 'child_process';
 import ***REMOVED*** exception ***REMOVED*** from 'console';
 import ***REMOVED*** EventEmitter ***REMOVED*** from 'events';
 import ***REMOVED*** URL ***REMOVED*** from 'url';
+import * as fs from 'fs';
 
 const BLACKLISTED = ***REMOVED***
     '’': '\''
@@ -33,6 +34,7 @@ function isValidUrl(url: string): boolean ***REMOVED***
 
 function extractLatestFrame(url: string): Promise<boolean> ***REMOVED***
     return new Promise<boolean>((resolve) => ***REMOVED***
+        fs.copyFileSync('latest.jpg', 'latest_backup.jpg');
         exec(`ffmpeg -i $***REMOVED***url***REMOVED*** -hide_banner -loglevel fatal -vframes 1 -y latest.jpg`, (err, stdout, stderr) => ***REMOVED***
             if (err || stderr) ***REMOVED***
                 console.log(`err: $***REMOVED***err ? err : stderr***REMOVED***`);
@@ -85,10 +87,11 @@ export default class SongChangeListener extends EventEmitter ***REMOVED***
 
     loop(): void ***REMOVED***
         extractLatestText(this.url).then(song => ***REMOVED***
-            if (song.valueOf() !== this.currentSong.valueOf()) ***REMOVED***
+            if (song?.valueOf() !== this.currentSong.valueOf()) ***REMOVED***
                 this.lastSong = this.currentSong;
                 this.currentSong = song;
                 this.emit('change', this.currentSong, this.lastSong);
+                fs.copyFileSync('latest_backup.jpg', 'latest_old.jpg');
             ***REMOVED***
         ***REMOVED***);
     ***REMOVED***

@@ -30,10 +30,6 @@ export default class DiscordClient ***REMOVED***
             this.startTime = Date.now();
         ***REMOVED***);
 
-        this.client.on('error', err => ***REMOVED***
-            console.log(err);
-        ***REMOVED***);
-
         this.client.on('message', msg => ***REMOVED***
             if (msg.author.bot || !msg.guild) return;
             if (!msg.content.startsWith(BOT_PREFIX)) return;
@@ -52,7 +48,7 @@ export default class DiscordClient ***REMOVED***
         this.broadcast.play(url);
     ***REMOVED***
 
-    broadcastMessage(msg: string): void ***REMOVED***
+    broadcastMessage(msg: string | Discord.MessageEmbed): void ***REMOVED***
         this.guilds.forEach(val => ***REMOVED***
             val.text?.send(msg);
         ***REMOVED***);
