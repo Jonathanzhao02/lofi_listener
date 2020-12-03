@@ -2,6 +2,7 @@ import { exec } from 'child_process';
 import { exception } from 'console';
 import { EventEmitter } from 'events';
 import { URL } from 'url';
+import * as fs from 'fs';
 
 const BLACKLISTED = {
     '’': '\''
@@ -33,6 +34,7 @@ function isValidUrl(url: string): boolean {
 
 function extractLatestFrame(url: string): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
+        fs.copyFileSync('latest.jpg', 'latest_backup.jpg');
         exec(`ffmpeg -i ${url} -hide_banner -loglevel fatal -vframes 1 -y latest.jpg`, (err, stdout, stderr) => {
             if (err || stderr) {
                 console.log(`err: ${err ? err : stderr}`);
@@ -85,10 +87,11 @@ export default class SongChangeListener extends EventEmitter {
 
     loop(): void {
         extractLatestText(this.url).then(song => {
-            if (song.valueOf() !== this.currentSong.valueOf()) {
+            if (song?.valueOf() !== this.currentSong.valueOf()) {
                 this.lastSong = this.currentSong;
                 this.currentSong = song;
                 this.emit('change', this.currentSong, this.lastSong);
+                fs.copyFileSync('latest_backup.jpg', 'latest_old.jpg');
             }
         });
     }
