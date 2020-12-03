@@ -1,0 +1,13 @@
+***REMOVED***
+    "compilerOptions": ***REMOVED***
+        "module": "commonjs",
+        "target": "es2016",
+        "jsx": "preserve",
+        "sourceMap": false,
+        "skipLibCheck": true
+    ***REMOVED***,
+    "exclude": [
+        "node_modules",
+        "**/node_modules/*"
+    ]
+***REMOVED***

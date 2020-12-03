@@ -1,0 +1,21 @@
+***REMOVED***
+    "env": ***REMOVED***
+        "node": true,
+        "commonjs": true,
+        "es2021": true
+    ***REMOVED***,
+    "extends": [
+        "eslint:recommended"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": ***REMOVED***
+        "ecmaVersion": 12
+    ***REMOVED***,
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "rules": ***REMOVED***
+        "semi": ["error", "always"],
+        "quotes": [2, "single"]
+    ***REMOVED***
+***REMOVED***
