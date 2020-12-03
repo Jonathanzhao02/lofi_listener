@@ -8,6 +8,22 @@ const BLACKLISTED = {
     '’': '\''
 };
 
+function compare(x: string, y: string): number {
+    if (x.length > y.length) {
+        const temp = x;
+        x = y;
+        y = temp;
+    }
+
+    let diff = y.length - x.length;
+
+    for (let i = 0; i < x.length; i++) {
+        if (x.charAt(i) !== y.charAt(i)) diff++;
+    }
+
+    return diff;
+}
+
 function extractSong(text: string): string {
     const lines = text.split('\n');
     
@@ -30,6 +46,19 @@ function isValidUrl(url: string): boolean {
     } catch (err) {
         return false;
     }
+}
+
+function extractLatestGif(url: string): Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
+        exec(`ffmpeg -i ${url} -hide_banner -loglevel fatal -vframes 30 -vf fps=15,select='not(mod(n\\,3))' -y latest.gif`, (err, stdout, stderr) => {
+            if (err || stderr) {
+                console.log(`err: ${err ? err : stderr}`);
+                resolve(false);
+            } else {
+                resolve(true);
+            }
+        });
+    });
 }
 
 function extractLatestFrame(url: string): Promise<boolean> {
@@ -67,9 +96,11 @@ function extractLatestText(url: string): Promise<string> {
 
 export default class SongChangeListener extends EventEmitter {
     private url: string;
+    private processId: ReturnType<typeof setTimeout>
+
     private currentSong: string;
     private lastSong: string;
-    private processId: ReturnType<typeof setTimeout>
+    private songsPlayed: number;
 
     constructor(url: string) {
         super();
@@ -81,17 +112,23 @@ export default class SongChangeListener extends EventEmitter {
         extractLatestText(this.url).then(song => {
             this.currentSong = song;
             this.lastSong = 'None';
+            this.songsPlayed = 0;
+            extractLatestGif(this.url);
             this.processId = setInterval(this.loop.bind(this), 5000);
         });
     }
 
     loop(): void {
         extractLatestText(this.url).then(song => {
-            if (song?.valueOf() !== this.currentSong.valueOf()) {
+            if (song?.valueOf() !== this.currentSong.valueOf() && compare(song, this.currentSong) > 3) {
                 this.lastSong = this.currentSong;
                 this.currentSong = song;
-                this.emit('change', this.currentSong, this.lastSong);
+                this.songsPlayed++;
+                fs.copyFileSync('latest.gif', 'latest_old.gif');
                 fs.copyFileSync('latest_backup.jpg', 'latest_old.jpg');
+                extractLatestGif(this.url).then(hasSavedGif => {
+                    this.emit('change', this.currentSong, this.lastSong);
+                });
             }
         });
     }
@@ -106,5 +143,9 @@ export default class SongChangeListener extends EventEmitter {
 
     getLastSong(): string {
         return this.lastSong;
+    }
+
+    getSongsPlayed(): number {
+        return this.songsPlayed;
     }
 }

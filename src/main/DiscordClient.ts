@@ -30,6 +30,10 @@ export default class DiscordClient {
             this.startTime = Date.now();
         });
 
+        this.client.on('error', err => {
+            this.destroy();
+        });
+
         this.client.on('message', msg => {
             if (msg.author.bot || !msg.guild) return;
             if (!msg.content.startsWith(BOT_PREFIX)) return;
@@ -54,40 +58,20 @@ export default class DiscordClient {
         });
     }
 
-    registerGuild(guild: Discord.Guild, text?: Discord.TextChannel, voice?: Discord.VoiceChannel): GuildContext {
+    addGuild(guild: Discord.Guild, text?: Discord.TextChannel, voice?: Discord.VoiceChannel): GuildContext {
         const guildContext: GuildContext = { 'text': text, 'voice': voice };
         this.guilds.set(guild, guildContext);
         return guildContext;
     }
 
-    registerGuildText(guild: Discord.Guild, text: Discord.TextChannel): GuildContext {
-        const guildContext = this.guilds.get(guild);
-        if (guildContext) guildContext.text = text;
-        return guildContext;
-    }
-
-    registerGuildVoice(guild: Discord.Guild, voice: Discord.VoiceChannel): GuildContext {
-        const guildContext = this.guilds.get(guild);
-        if (guildContext) guildContext.voice = voice;
-        return guildContext;
-    }
-
-    unregisterGuild(guild: Discord.Guild): GuildContext {
+    removeGuild(guild: Discord.Guild): GuildContext {
         const guildContext = this.guilds.get(guild);
         this.guilds.delete(guild);
         return guildContext;
     }
 
-    unregisterGuildText(guild: Discord.Guild): GuildContext {
-        const guildContext = this.guilds.get(guild);
-        if (guildContext) guildContext.text = undefined;
-        return guildContext;
-    }
-
-    unregisterGuildVoice(guild: Discord.Guild): GuildContext {
-        const guildContext = this.guilds.get(guild);
-        if (guildContext) guildContext.voice = undefined;
-        return guildContext;
+    getGuild(guild: Discord.Guild): GuildContext {
+        return this.guilds.get(guild);
     }
 
     registerCommands(cmd: Command | Command[]): void {
@@ -110,16 +94,16 @@ export default class DiscordClient {
         let etime = Date.now() - this.startTime;
         const times = [];
         let result = '';
-        DiscordClient.MILLIS.forEach(val => {
-            times.push(Math.floor(etime / val));
-            etime = etime % val;
-        });
-        times.forEach((val, idx) => {
-            if (val > 0) {
-                result += `, ${DiscordClient.MILLIS_LABELS[idx]}: \`${times[idx]}\``;
+
+        for (let i = 0; i < DiscordClient.MILLIS.length; i++) {
+            const time = Math.floor(etime / DiscordClient.MILLIS[i]);
+            if (time > 0) {
+                result = `${DiscordClient.MILLIS_LABELS[i]}: \`${time}\``;
+                break;
             }
-        });
-        return result.substr(2);
+        }
+
+        return result;
     }
 
     getStartDate(): Date {

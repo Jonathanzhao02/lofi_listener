@@ -34,7 +34,7 @@ const main = async (): Promise<void> => {
             new MessageEmbed()
                 .setColor('#66ccff')
                 .setTitle('▶️ Now Playing')
-                .attachFiles(['latest.jpg'])
+                .attachFiles(['latest.gif'])
                 .setDescription(current)
         );
     });
@@ -53,10 +53,10 @@ const main = async (): Promise<void> => {
 
             connection.on('disconnect', () => {
                 dispatcher.destroy();
-                client.unregisterGuild(msg.guild);
+                client.removeGuild(msg.guild);
             });
         });
-        if (msg.channel instanceof TextChannel) client.registerGuild(msg.guild, msg.channel, msg.member.voice.channel);
+        if (msg.channel instanceof TextChannel) client.addGuild(msg.guild, msg.channel, msg.member.voice.channel);
     });
 
     const npCommand = new Command(['nowplaying', 'np'], (client, msg) => {
@@ -64,7 +64,7 @@ const main = async (): Promise<void> => {
             new MessageEmbed()
                 .setColor('#66ccff')
                 .setTitle('▶️ Currently Playing')
-                .attachFiles(['latest.jpg'])
+                .attachFiles(['latest.gif'])
                 .setDescription(songChangeListener.getCurrentSong())
         );
     });
@@ -74,7 +74,7 @@ const main = async (): Promise<void> => {
             new MessageEmbed()
                 .setColor('#66ccff')
                 .setTitle('⏪ Last Played')
-                .attachFiles(['latest_old.jpg'])
+                .attachFiles(['latest_old.gif'])
                 .setDescription(songChangeListener.getLastSong())
         );
     });
@@ -82,18 +82,20 @@ const main = async (): Promise<void> => {
     const startCommand = new Command(['start'], (client, msg) => {
         if (msg.channel instanceof TextChannel) {
             msg.channel.send('✅ Will now send updates.');
-            client.registerGuildText(msg.guild, msg.channel);
+            const guildConstruct = client.getGuild(msg.guild);
+            if (guildConstruct) guildConstruct.text = msg.channel;
         }
     });
 
     const stopCommand = new Command(['stop'], (client, msg) => {
         msg.channel.send('❌ Will no longer send updates.');
-        client.unregisterGuildText(msg.guild);
+        const guildConstruct = client.getGuild(msg.guild);
+        if (guildConstruct) guildConstruct.text = null;
     });
 
     const leaveCommand = new Command(['leave'], (client, msg) => {
         msg.guild.me.voice.channel.leave();
-        client.unregisterGuild(msg.guild);
+        client.removeGuild(msg.guild);
     });
 
     const statCommand = new Command(['stats', 'uptime', 'info'], (client, msg) => {
@@ -101,6 +103,7 @@ const main = async (): Promise<void> => {
             new MessageEmbed()
                 .setColor('#0099ff')
                 .setTitle('📊 Stats')
+                .addField('🎶 Songs Played', songChangeListener.getSongsPlayed())
                 .addField('⏱️ Runtime', client.etime())
                 .addField('📅 Up Since', client.getStartDate().toUTCString())
         );
