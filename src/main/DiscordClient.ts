@@ -14,6 +14,9 @@ export default class DiscordClient {
     private guilds: Map<Discord.Guild, GuildContext>;
     private broadcast: Discord.VoiceBroadcast;
     private registeredCommands: Command[];
+    private startTime: number;
+    static readonly MILLIS = [31557600000, 2629800000, 604800000, 86400000, 3600000, 60000, 1000];
+    static readonly MILLIS_LABELS = ['Years', 'Months', 'Weeks', 'Days', 'Hours', 'Minutes', 'Seconds'];
 
     constructor() {
         this.client = new Discord.Client();
@@ -24,6 +27,7 @@ export default class DiscordClient {
         this.client.login(isDevelopment ? TEST_BOT_TOKEN : BOT_TOKEN);
         this.client.on('ready', () => {
             console.log('Bot logged in');
+            this.startTime = Date.now();
         });
 
         this.client.on('error', err => {
@@ -104,5 +108,25 @@ export default class DiscordClient {
 
     destroy(): void {
         this.client.destroy();
+    }
+
+    etime(): string {
+        let etime = Date.now() - this.startTime;
+        const times = [];
+        let result = '';
+        DiscordClient.MILLIS.forEach(val => {
+            times.push(Math.floor(etime / val));
+            etime = etime % val;
+        });
+        times.forEach((val, idx) => {
+            if (val > 0) {
+                result += `, ${DiscordClient.MILLIS_LABELS[idx]}: \`${times[idx]}\``;
+            }
+        });
+        return result.substr(2);
+    }
+
+    getStartDate(): Date {
+        return new Date(this.startTime);
     }
 }
