@@ -41,6 +41,7 @@ const main = async (): Promise<void> => {
 
     const joinCommand = new Command(['play', 'join', 'p'], (client, msg) => {
         if (!msg.member.voice.channel) return msg.channel.send('You\'re not in a voice channel?');
+        if (msg.guild.me.voice.channel === msg.member.voice.channel) return msg.channel.send('Already in your voice channel.');
         msg.member.voice.channel.join()
         .then(connection => {
             let dispatcher = connection.play(client.getBroadcast(), {
@@ -99,7 +100,12 @@ const main = async (): Promise<void> => {
     });
 
     const notifyInCommand = new Command(['notifyin'], (client, msg) => {
-        console.log(msg.content);
+        const text = msg.mentions?.channels?.first();
+        if (text instanceof TextChannel) {
+            msg.channel.send('✅ Will now send updates there.');
+            const guildConstruct = client.getGuild(msg.guild);
+            if (guildConstruct) guildConstruct.text = text;
+        }
     });
 
     const statCommand = new Command(['stats', 'uptime', 'info'], (client, msg) => {
@@ -113,7 +119,7 @@ const main = async (): Promise<void> => {
         );
     });
 
-    client.registerCommands([joinCommand, npCommand, lpCommand, startCommand, stopCommand, leaveCommand, statCommand]);
+    client.registerCommands([joinCommand, leaveCommand, npCommand, lpCommand, startCommand, stopCommand, notifyInCommand, statCommand]);
 
     process.on('SIGINT', () => {
         songChangeListener.end();
