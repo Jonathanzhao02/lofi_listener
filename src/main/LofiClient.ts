@@ -1,24 +1,43 @@
 import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler } from 'discord-akairo';
-import { VoiceBroadcast, Guild, MessageEmbed, TextChannel, NewsChannel, DMChannel, VoiceChannel } from 'discord.js';
+import { VoiceBroadcast, Guild, MessageEmbed, TextChannel, NewsChannel, DMChannel, VoiceChannel, Snowflake } from 'discord.js';
 import { EventEmitter } from 'events';
 import SongChangeListener from './SongChangeListener';
 
 const { BOT_PREFIX } = require('../config.json');
 const MILLIS = [31557600000, 2629800000, 604800000, 86400000, 3600000, 60000, 1000];
-const MILLIS_LABELS = ['Years', 'Months', 'Weeks', 'Days', 'Hours', 'Minutes', 'Seconds'];
+const MILLIS_LABELS = ['years', 'months', 'weeks', 'days', 'hours', 'minutes', 'seconds'];
 
 type ServerSettings = {
     notifications: boolean
 }
 
+function etimeLabeled(startTime: number): string {
+    let etime = Date.now() - startTime;
+    const times = [];
+    let result = '';
+
+    for (let i = 0; i < MILLIS.length; i++) {
+        const time = Math.floor(etime / MILLIS[i]);
+        if (time > 0) {
+            result = `\`${time}\` ${MILLIS_LABELS[i]}`;
+            break;
+        }
+    }
+
+    return result;
+}
+
 export class Server {
     private notificationChannel: TextChannel | NewsChannel | DMChannel;
     private voiceChannel: VoiceChannel;
+    private startTime: number;
     private notifications: boolean;
+    private id: Snowflake;
 
-    constructor(settings: ServerSettings = {
+    constructor(id: Snowflake, settings: ServerSettings = {
         notifications: true
     }) {
+        this.startTime = Date.now();
         this.notifications = settings.notifications;
     }
 
@@ -46,6 +65,10 @@ export class Server {
     setNotifications(on: boolean): void {
         this.notifications = on;
     }
+
+    etime(): string {
+        return etimeLabeled(this.startTime);
+    }
 }
 
 export default class LofiClient extends AkairoClient {
@@ -53,7 +76,7 @@ export default class LofiClient extends AkairoClient {
     private inhibitorHandler: InhibitorHandler;
     private listenerHandler: ListenerHandler;
     private broadcast: VoiceBroadcast;
-    private servers: Map<Guild, Server>;
+    private servers: Map<Snowflake, Server>;
     private startTime: number;
     private songListener: SongChangeListener;
     private songsPlayed: number;
@@ -83,7 +106,7 @@ export default class LofiClient extends AkairoClient {
         });
 
         this.broadcast = this.voice.createBroadcast();
-        this.servers = new Map<Guild, Server>();
+        this.servers = new Map<Snowflake, Server>();
         this.startTime = Date.now();
         this.songsPlayed = 0;
 
@@ -114,20 +137,20 @@ export default class LofiClient extends AkairoClient {
         });
     }
 
-    getServer(guild: Guild): Server {
-        return this.servers.get(guild);
+    getServer(id: Snowflake): Server {
+        return this.servers.get(id);
     }
 
-    addServer(guild: Guild, server: Server): Map<Guild, Server> {
-        return this.servers.set(guild, server);
+    addServer(id: Snowflake, server: Server): Map<Snowflake, Server> {
+        return this.servers.set(id, server);
     }
 
-    hasServer(guild: Guild): boolean {
-        return this.servers.has(guild);
+    hasServer(id: Snowflake): boolean {
+        return this.servers.has(id);
     }
 
-    removeServer(guild: Guild): boolean {
-        return this.servers.delete(guild);
+    removeServer(id: Snowflake): boolean {
+        return this.servers.delete(id);
     }
 
     setSongListener(listener: SongChangeListener): void {
@@ -151,19 +174,7 @@ export default class LofiClient extends AkairoClient {
     }
 
     etime(): string {
-        let etime = Date.now() - this.startTime;
-        const times = [];
-        let result = '';
-
-        for (let i = 0; i < MILLIS.length; i++) {
-            const time = Math.floor(etime / MILLIS[i]);
-            if (time > 0) {
-                result = `${MILLIS_LABELS[i]}: \`${time}\``;
-                break;
-            }
-        }
-
-        return result;
+        return etimeLabeled(this.startTime);
     }
 
     getStartDate(): Date {

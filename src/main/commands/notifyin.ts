@@ -17,6 +17,6 @@ export default class NotifyInCommand extends Command {
     exec(message: Message): void {
         const text = message.mentions?.channels?.first();
         message.channel.send('✅ Will now send updates there.');
-        this.client.getServer(message.guild)?.setNotificationChannel(text);
+        this.client.getServer(message.guild.id)?.setNotificationChannel(text);
     }
 }

@@ -6,7 +6,7 @@ import * as fs from 'fs';
 
 const { CHANGE_THRESHOLD } = require('../config.json');
 
-export function compareLevenshtein(a: string, b: string): number{
+function compareLevenshtein(a: string, b: string): number{
     if(a.length == 0) return b.length; 
     if(b.length == 0) return a.length; 
 
@@ -69,7 +69,6 @@ function extractLatestGif(url: string): Promise<boolean> {
 
 function extractLatestFrame(url: string): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
-        fs.copyFileSync('resources/latest.jpg', 'resources/latest_backup.jpg');
         exec(`ffmpeg -i ${url} -hide_banner -loglevel fatal -vframes 1 -y resources/latest.jpg`, (err, stdout, stderr) => {
             if (err || stderr) {
                 console.log(`err: ${err ? err : stderr}`);
@@ -125,6 +124,7 @@ export default class SongChangeListener extends EventEmitter {
     }
 
     loop(): void {
+        fs.copyFileSync('resources/latest.jpg', 'resources/latest_backup.jpg');
         extractLatestText(this.url).then(song => {
             if (song?.valueOf() !== this.currentSong.valueOf() && compareLevenshtein(song, this.currentSong) > CHANGE_THRESHOLD) {
                 this.lastSong = this.currentSong;

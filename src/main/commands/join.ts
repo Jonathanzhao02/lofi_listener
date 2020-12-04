@@ -34,14 +34,14 @@ export default class JoinCommand extends Command {
 
             connection.on('disconnect', () => {
                 dispatcher.destroy();
-                this.client.removeServer(message.guild);
+                this.client.removeServer(message.guild.id);
             });
         });
-        if (!this.client.hasServer(message.guild)) {
-            const server = new Server();
+        if (!this.client.hasServer(message.guild.id)) {
+            const server = new Server(message.guild.id);
             server.setNotificationChannel(message.channel);
             server.setVoiceChannel(message.member.voice.channel);
-            this.client.addServer(message.guild, server);
+            this.client.addServer(message.guild.id, server);
         }
     }
 }
