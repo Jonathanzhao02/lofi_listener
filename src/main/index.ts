@@ -119,7 +119,11 @@ const main = async (): Promise<void> => {
         );
     });
 
-    client.registerCommands([joinCommand, leaveCommand, npCommand, lpCommand, startCommand, stopCommand, notifyInCommand, statCommand]);
+    const echoCommand = new Command(['echo'], (client, msg) => {
+        console.log(msg.content);
+    });
+
+    client.registerCommands([joinCommand, leaveCommand, npCommand, lpCommand, startCommand, stopCommand, notifyInCommand, statCommand, echoCommand]);
 
     process.on('SIGINT', () => {
         songChangeListener.end();

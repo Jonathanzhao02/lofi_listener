@@ -4,24 +4,35 @@ import { EventEmitter } from 'events';
 import { URL } from 'url';
 import * as fs from 'fs';
 
-const BLACKLISTED = {
-    '’': '\''
-};
+const CHANGE_THRESHOLD = 4;
 
-function compare(x: string, y: string): number {
-    if (x.length > y.length) {
-        const temp = x;
-        x = y;
-        y = temp;
+export function compareLevenshtein(a: string, b: string): number{
+    if(a.length == 0) return b.length; 
+    if(b.length == 0) return a.length; 
+
+    let matrix = [];
+
+    for(let i = 0; i <= b.length; i++){
+        matrix[i] = [i];
     }
 
-    let diff = y.length - x.length;
-
-    for (let i = 0; i < x.length; i++) {
-        if (x.charAt(i) !== y.charAt(i)) diff++;
+    for(let j = 0; j <= a.length; j++){
+        matrix[0][j] = j;
     }
 
-    return diff;
+    for(let i = 1; i <= b.length; i++){
+        for(let j = 1; j <= a.length; j++){
+            if(b.charAt(i-1) == a.charAt(j-1)){
+                matrix[i][j] = matrix[i-1][j-1];
+            } else {
+                matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, // substitution
+                               Math.min(matrix[i][j-1] + 1, // insertion
+                               matrix[i-1][j] + 1)); // deletion
+            }
+        }
+    }
+
+    return matrix[b.length][a.length];
 }
 
 function extractSong(text: string): string {
@@ -29,11 +40,6 @@ function extractSong(text: string): string {
     
     for (let line of lines) {
         if (line.indexOf('-') > 0) {
-
-            for (const char in BLACKLISTED) {
-                line = line.replace(new RegExp(char, 'g'), BLACKLISTED[char]);
-            }
-
             return line.trim();
         }
     }
@@ -120,7 +126,7 @@ export default class SongChangeListener extends EventEmitter {
 
     loop(): void {
         extractLatestText(this.url).then(song => {
-            if (song?.valueOf() !== this.currentSong.valueOf() && compare(song, this.currentSong) > 3) {
+            if (song?.valueOf() !== this.currentSong.valueOf() && compareLevenshtein(song, this.currentSong) > CHANGE_THRESHOLD) {
                 this.lastSong = this.currentSong;
                 this.currentSong = song;
                 this.songsPlayed++;
