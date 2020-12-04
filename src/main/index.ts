@@ -30,10 +30,27 @@ async function main(): Promise<void> ***REMOVED***
     client.login(isDevelopment? TEST_BOT_TOKEN : BOT_TOKEN);
     client.broadcastSound(url);
 
-    process.on('beforeExit', () => ***REMOVED***
+    process.on('SIGINT', () => ***REMOVED***
         songChangeListener.end();
         console.log('Logging out');
         client.destroy();
+        process.exit(0);
+    ***REMOVED***);
+
+    process.on('uncaughtException', err => ***REMOVED***
+        console.log(err);
+        songChangeListener.end();
+        console.log('Logging out');
+        client.destroy();
+        process.exit(0);
+    ***REMOVED***);
+
+    process.on('unhandledRejection', err => ***REMOVED***
+        console.log(err);
+        songChangeListener.end();
+        console.log('Logging out');
+        client.destroy();
+        process.exit(0);
     ***REMOVED***);
 ***REMOVED***
 

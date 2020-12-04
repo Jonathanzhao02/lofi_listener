@@ -1,7 +1,10 @@
-import ***REMOVED*** AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler ***REMOVED*** from 'discord-akairo';
-import ***REMOVED*** VoiceBroadcast, Guild, MessageEmbed, TextChannel, NewsChannel, DMChannel, VoiceChannel, Snowflake ***REMOVED*** from 'discord.js';
+import ***REMOVED*** AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler, MongooseProvider ***REMOVED*** from 'discord-akairo';
+import ***REMOVED*** VoiceBroadcast, MessageEmbed, TextChannel, NewsChannel, DMChannel, VoiceChannel, Snowflake ***REMOVED*** from 'discord.js';
+import mongoose from 'mongoose';
 import ***REMOVED*** EventEmitter ***REMOVED*** from 'events';
 import SongChangeListener from './SongChangeListener';
+import ServerSchema from './models/ServerSchema';
+const ***REMOVED*** DB_URL ***REMOVED*** = require('../config.json');
 
 const ***REMOVED*** BOT_PREFIX ***REMOVED*** = require('../config.json');
 const MILLIS = [31557600000, 2629800000, 604800000, 86400000, 3600000, 60000, 1000];
@@ -80,6 +83,7 @@ export default class LofiClient extends AkairoClient ***REMOVED***
     private startTime: number;
     private songListener: SongChangeListener;
     private songsPlayed: number;
+    readonly settings: MongooseProvider;
 
     constructor() ***REMOVED***
         super(
@@ -94,7 +98,13 @@ export default class LofiClient extends AkairoClient ***REMOVED***
 
         this.commandHandler = new CommandHandler(this, ***REMOVED***
             directory: './build/commands/',
-            prefix: BOT_PREFIX
+            prefix: (message) => ***REMOVED***
+                if (message.guild) ***REMOVED***
+                    return this.settings.get(message.guild.id, 'prefix', BOT_PREFIX);
+                ***REMOVED***
+
+                return BOT_PREFIX;
+            ***REMOVED***
         ***REMOVED***);
 
         this.inhibitorHandler = new InhibitorHandler(this, ***REMOVED***
@@ -115,6 +125,19 @@ export default class LofiClient extends AkairoClient ***REMOVED***
         this.registerEmitter('commandHandler', this.commandHandler);
         this.registerEmitter('inhibitorHandler', this.inhibitorHandler);
         this.registerEmitter('listenerHandler', this.listenerHandler);
+
+        this.settings = new MongooseProvider(ServerSchema);
+    ***REMOVED***
+
+    async login(token: string): Promise<string> ***REMOVED***
+        await mongoose.connect(DB_URL, ***REMOVED***
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            useFindAndModify: false,
+            useCreateIndex: true
+        ***REMOVED***);
+        await this.settings.init();
+        return super.login(token);
     ***REMOVED***
 
     load(): void ***REMOVED***
