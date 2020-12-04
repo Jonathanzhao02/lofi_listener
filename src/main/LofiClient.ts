@@ -1,7 +1,10 @@
-import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler } from 'discord-akairo';
-import { VoiceBroadcast, Guild, MessageEmbed, TextChannel, NewsChannel, DMChannel, VoiceChannel, Snowflake } from 'discord.js';
+import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler, MongooseProvider } from 'discord-akairo';
+import { VoiceBroadcast, MessageEmbed, TextChannel, NewsChannel, DMChannel, VoiceChannel, Snowflake } from 'discord.js';
+import mongoose from 'mongoose';
 import { EventEmitter } from 'events';
 import SongChangeListener from './SongChangeListener';
+import ServerSchema from './models/ServerSchema';
+const { DB_URL } = require('../config.json');
 
 const { BOT_PREFIX } = require('../config.json');
 const MILLIS = [31557600000, 2629800000, 604800000, 86400000, 3600000, 60000, 1000];
@@ -80,6 +83,7 @@ export default class LofiClient extends AkairoClient {
     private startTime: number;
     private songListener: SongChangeListener;
     private songsPlayed: number;
+    readonly settings: MongooseProvider;
 
     constructor() {
         super(
@@ -94,7 +98,13 @@ export default class LofiClient extends AkairoClient {
 
         this.commandHandler = new CommandHandler(this, {
             directory: './build/commands/',
-            prefix: BOT_PREFIX
+            prefix: (message) => {
+                if (message.guild) {
+                    return this.settings.get(message.guild.id, 'prefix', BOT_PREFIX);
+                }
+
+                return BOT_PREFIX;
+            }
         });
 
         this.inhibitorHandler = new InhibitorHandler(this, {
@@ -115,6 +125,19 @@ export default class LofiClient extends AkairoClient {
         this.registerEmitter('commandHandler', this.commandHandler);
         this.registerEmitter('inhibitorHandler', this.inhibitorHandler);
         this.registerEmitter('listenerHandler', this.listenerHandler);
+
+        this.settings = new MongooseProvider(ServerSchema);
+    }
+
+    async login(token: string): Promise<string> {
+        await mongoose.connect(DB_URL, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            useFindAndModify: false,
+            useCreateIndex: true
+        });
+        await this.settings.init();
+        return super.login(token);
     }
 
     load(): void {
