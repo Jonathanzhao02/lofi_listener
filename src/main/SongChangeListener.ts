@@ -50,7 +50,7 @@ function isValidUrl(url: string): boolean {
 
 function extractLatestGif(url: string): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
-        exec(`ffmpeg -i ${url} -hide_banner -loglevel fatal -vframes 30 -vf fps=15,select='not(mod(n\\,3))' -y latest.gif`, (err, stdout, stderr) => {
+        exec(`ffmpeg -i ${url} -hide_banner -loglevel fatal -vframes 30 -vf fps=15,select='not(mod(n\\,3))' -y resources/latest.gif`, (err, stdout, stderr) => {
             if (err || stderr) {
                 console.log(`err: ${err ? err : stderr}`);
                 resolve(false);
@@ -63,8 +63,8 @@ function extractLatestGif(url: string): Promise<boolean> {
 
 function extractLatestFrame(url: string): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
-        fs.copyFileSync('latest.jpg', 'latest_backup.jpg');
-        exec(`ffmpeg -i ${url} -hide_banner -loglevel fatal -vframes 1 -y latest.jpg`, (err, stdout, stderr) => {
+        fs.copyFileSync('resources/latest.jpg', 'resources/latest_backup.jpg');
+        exec(`ffmpeg -i ${url} -hide_banner -loglevel fatal -vframes 1 -y resources/latest.jpg`, (err, stdout, stderr) => {
             if (err || stderr) {
                 console.log(`err: ${err ? err : stderr}`);
                 resolve(false);
@@ -79,7 +79,7 @@ function extractLatestText(url: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
         extractLatestFrame(url).then(hasNewestFrame => {
             if (hasNewestFrame) {
-                exec('python tesseract-backend/main.py latest.jpg', (err, stdout, stderr) => {
+                exec('python tesseract-backend/main.py resources/latest.jpg', (err, stdout, stderr) => {
                     if (err || stderr) {
                         console.log(`err: ${err ? err : stderr}`);
                         reject('Failed to run tesseract');
@@ -124,8 +124,8 @@ export default class SongChangeListener extends EventEmitter {
                 this.lastSong = this.currentSong;
                 this.currentSong = song;
                 this.songsPlayed++;
-                fs.copyFileSync('latest.gif', 'latest_old.gif');
-                fs.copyFileSync('latest_backup.jpg', 'latest_old.jpg');
+                fs.copyFileSync('resources/latest.gif', 'resources/latest_old.gif');
+                fs.copyFileSync('resources/latest_backup.jpg', 'resources/latest_old.jpg');
                 extractLatestGif(this.url).then(hasSavedGif => {
                     this.emit('change', this.currentSong, this.lastSong);
                 });

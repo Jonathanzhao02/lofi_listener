@@ -34,7 +34,7 @@ const main = async (): Promise<void> => {
             new MessageEmbed()
                 .setColor('#66ccff')
                 .setTitle('▶️ Now Playing')
-                .attachFiles(['latest.gif'])
+                .attachFiles(['resources/latest.gif'])
                 .setDescription(current)
         );
     });
@@ -59,12 +59,17 @@ const main = async (): Promise<void> => {
         if (msg.channel instanceof TextChannel) client.addGuild(msg.guild, msg.channel, msg.member.voice.channel);
     });
 
+    const leaveCommand = new Command(['leave'], (client, msg) => {
+        msg.guild.me.voice.channel.leave();
+        client.removeGuild(msg.guild);
+    });
+
     const npCommand = new Command(['nowplaying', 'np'], (client, msg) => {
         msg.channel.send(
             new MessageEmbed()
                 .setColor('#66ccff')
                 .setTitle('▶️ Currently Playing')
-                .attachFiles(['latest.gif'])
+                .attachFiles(['resources/latest.gif'])
                 .setDescription(songChangeListener.getCurrentSong())
         );
     });
@@ -74,7 +79,7 @@ const main = async (): Promise<void> => {
             new MessageEmbed()
                 .setColor('#66ccff')
                 .setTitle('⏪ Last Played')
-                .attachFiles(['latest_old.gif'])
+                .attachFiles(['resources/latest_old.gif'])
                 .setDescription(songChangeListener.getLastSong())
         );
     });
@@ -93,9 +98,8 @@ const main = async (): Promise<void> => {
         if (guildConstruct) guildConstruct.text = null;
     });
 
-    const leaveCommand = new Command(['leave'], (client, msg) => {
-        msg.guild.me.voice.channel.leave();
-        client.removeGuild(msg.guild);
+    const notifyInCommand = new Command(['notifyin'], (client, msg) => {
+        console.log(msg.content);
     });
 
     const statCommand = new Command(['stats', 'uptime', 'info'], (client, msg) => {
