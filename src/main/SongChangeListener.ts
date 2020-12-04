@@ -4,24 +4,35 @@ import ***REMOVED*** EventEmitter ***REMOVED*** from 'events';
 import ***REMOVED*** URL ***REMOVED*** from 'url';
 import * as fs from 'fs';
 
-const BLACKLISTED = ***REMOVED***
-    '’': '\''
-***REMOVED***;
+const CHANGE_THRESHOLD = 4;
 
-function compare(x: string, y: string): number ***REMOVED***
-    if (x.length > y.length) ***REMOVED***
-        const temp = x;
-        x = y;
-        y = temp;
+export function compareLevenshtein(a: string, b: string): number***REMOVED***
+    if(a.length == 0) return b.length; 
+    if(b.length == 0) return a.length; 
+
+    let matrix = [];
+
+    for(let i = 0; i <= b.length; i++)***REMOVED***
+        matrix[i] = [i];
     ***REMOVED***
 
-    let diff = y.length - x.length;
-
-    for (let i = 0; i < x.length; i++) ***REMOVED***
-        if (x.charAt(i) !== y.charAt(i)) diff++;
+    for(let j = 0; j <= a.length; j++)***REMOVED***
+        matrix[0][j] = j;
     ***REMOVED***
 
-    return diff;
+    for(let i = 1; i <= b.length; i++)***REMOVED***
+        for(let j = 1; j <= a.length; j++)***REMOVED***
+            if(b.charAt(i-1) == a.charAt(j-1))***REMOVED***
+                matrix[i][j] = matrix[i-1][j-1];
+            ***REMOVED*** else ***REMOVED***
+                matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, // substitution
+                               Math.min(matrix[i][j-1] + 1, // insertion
+                               matrix[i-1][j] + 1)); // deletion
+            ***REMOVED***
+        ***REMOVED***
+    ***REMOVED***
+
+    return matrix[b.length][a.length];
 ***REMOVED***
 
 function extractSong(text: string): string ***REMOVED***
@@ -29,11 +40,6 @@ function extractSong(text: string): string ***REMOVED***
     
     for (let line of lines) ***REMOVED***
         if (line.indexOf('-') > 0) ***REMOVED***
-
-            for (const char in BLACKLISTED) ***REMOVED***
-                line = line.replace(new RegExp(char, 'g'), BLACKLISTED[char]);
-            ***REMOVED***
-
             return line.trim();
         ***REMOVED***
     ***REMOVED***
@@ -120,7 +126,7 @@ export default class SongChangeListener extends EventEmitter ***REMOVED***
 
     loop(): void ***REMOVED***
         extractLatestText(this.url).then(song => ***REMOVED***
-            if (song?.valueOf() !== this.currentSong.valueOf() && compare(song, this.currentSong) > 3) ***REMOVED***
+            if (song?.valueOf() !== this.currentSong.valueOf() && compareLevenshtein(song, this.currentSong) > CHANGE_THRESHOLD) ***REMOVED***
                 this.lastSong = this.currentSong;
                 this.currentSong = song;
                 this.songsPlayed++;
