@@ -34,7 +34,7 @@ const main = async (): Promise<void> => ***REMOVED***
             new MessageEmbed()
                 .setColor('#66ccff')
                 .setTitle('▶️ Now Playing')
-                .attachFiles(['latest.gif'])
+                .attachFiles(['resources/latest.gif'])
                 .setDescription(current)
         );
     ***REMOVED***);
@@ -59,12 +59,17 @@ const main = async (): Promise<void> => ***REMOVED***
         if (msg.channel instanceof TextChannel) client.addGuild(msg.guild, msg.channel, msg.member.voice.channel);
     ***REMOVED***);
 
+    const leaveCommand = new Command(['leave'], (client, msg) => ***REMOVED***
+        msg.guild.me.voice.channel.leave();
+        client.removeGuild(msg.guild);
+    ***REMOVED***);
+
     const npCommand = new Command(['nowplaying', 'np'], (client, msg) => ***REMOVED***
         msg.channel.send(
             new MessageEmbed()
                 .setColor('#66ccff')
                 .setTitle('▶️ Currently Playing')
-                .attachFiles(['latest.gif'])
+                .attachFiles(['resources/latest.gif'])
                 .setDescription(songChangeListener.getCurrentSong())
         );
     ***REMOVED***);
@@ -74,7 +79,7 @@ const main = async (): Promise<void> => ***REMOVED***
             new MessageEmbed()
                 .setColor('#66ccff')
                 .setTitle('⏪ Last Played')
-                .attachFiles(['latest_old.gif'])
+                .attachFiles(['resources/latest_old.gif'])
                 .setDescription(songChangeListener.getLastSong())
         );
     ***REMOVED***);
@@ -93,9 +98,8 @@ const main = async (): Promise<void> => ***REMOVED***
         if (guildConstruct) guildConstruct.text = null;
     ***REMOVED***);
 
-    const leaveCommand = new Command(['leave'], (client, msg) => ***REMOVED***
-        msg.guild.me.voice.channel.leave();
-        client.removeGuild(msg.guild);
+    const notifyInCommand = new Command(['notifyin'], (client, msg) => ***REMOVED***
+        console.log(msg.content);
     ***REMOVED***);
 
     const statCommand = new Command(['stats', 'uptime', 'info'], (client, msg) => ***REMOVED***
