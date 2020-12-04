@@ -4,7 +4,7 @@ import { EventEmitter } from 'events';
 import { URL } from 'url';
 import * as fs from 'fs';
 
-const CHANGE_THRESHOLD = 4;
+const { CHANGE_THRESHOLD } = require('../config.json');
 
 export function compareLevenshtein(a: string, b: string): number{
     if(a.length == 0) return b.length; 
