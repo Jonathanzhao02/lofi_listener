@@ -1,15 +1,13 @@
-// import * as ytdl from 'discord-ytdl-core';
-import ***REMOVED*** MessageEmbed, TextChannel ***REMOVED*** from 'discord.js';
 import ***REMOVED*** getInfo, videoFormat ***REMOVED*** from 'ytdl-core';
-import Command from './Command';
-import DiscordClient from './DiscordClient';
 import SongChangeListener from './SongChangeListener';
+import LofiClient from './LofiClient';
 
-const VID_URL: string = 'https://www.youtube.com/watch?v=DWcJFNfaw9c'; // LOFI HIP HOP SLEEP TO
+const ***REMOVED*** TEST_BOT_TOKEN, BOT_TOKEN, STREAM_URL ***REMOVED*** = require('../config.json');
+const isDevelopment = process.env.NODE_ENV.valueOf() !== 'production';
 
 function getBestFormat(url: string): Promise<string> ***REMOVED***
     return new Promise<string>(resolve => ***REMOVED***
-        getInfo(VID_URL).then(info => ***REMOVED***
+        getInfo(url).then(info => ***REMOVED***
             let formats = info.formats;
             const filter = (format: videoFormat): boolean => format.audioBitrate && format.isHLS;
             formats = formats
@@ -20,110 +18,18 @@ function getBestFormat(url: string): Promise<string> ***REMOVED***
     ***REMOVED***);
 ***REMOVED***
 
-const main = async (): Promise<void> => ***REMOVED***
-    const url = await getBestFormat(VID_URL);
-    const client = new DiscordClient();
-    client.broadcastSound(url);
-
-    // const stream = ytdl.arbitraryStream(bestFormat.url, ***REMOVED*** filter: 'audioonly', opusEncoded: true, encoderArgs: ['-af', 'bass=g=10'], ***REMOVED***);
+async function main(): Promise<void> ***REMOVED***
+    const url = await getBestFormat(STREAM_URL);
 
     const songChangeListener = new SongChangeListener(url);
     songChangeListener.init();
-    songChangeListener.on('change', (current) => ***REMOVED***
-        client.broadcastMessage(
-            new MessageEmbed()
-                .setColor('#66ccff')
-                .setTitle('▶️ Now Playing')
-                .attachFiles(['resources/latest.gif'])
-                .setDescription(current)
-        );
-    ***REMOVED***);
 
-    const joinCommand = new Command(['play', 'join', 'p'], (client, msg) => ***REMOVED***
-        if (!msg.member.voice.channel) return msg.channel.send('You\'re not in a voice channel?');
-        if (msg.guild.me.voice.channel === msg.member.voice.channel) return msg.channel.send('Already in your voice channel.');
-        msg.member.voice.channel.join()
-        .then(connection => ***REMOVED***
-            let dispatcher = connection.play(client.getBroadcast(), ***REMOVED***
-                type: 'opus'
-            ***REMOVED***)
-            .on('finish', () => ***REMOVED***
-                dispatcher.destroy();
-                msg.guild.me.voice.channel.leave();
-            ***REMOVED***);
-
-            connection.on('disconnect', () => ***REMOVED***
-                dispatcher.destroy();
-                client.removeGuild(msg.guild);
-            ***REMOVED***);
-        ***REMOVED***);
-        if (msg.channel instanceof TextChannel) client.addGuild(msg.guild, msg.channel, msg.member.voice.channel);
-    ***REMOVED***);
-
-    const leaveCommand = new Command(['leave'], (client, msg) => ***REMOVED***
-        msg.guild.me.voice.channel.leave();
-        client.removeGuild(msg.guild);
-    ***REMOVED***);
-
-    const npCommand = new Command(['nowplaying', 'np'], (client, msg) => ***REMOVED***
-        msg.channel.send(
-            new MessageEmbed()
-                .setColor('#66ccff')
-                .setTitle('▶️ Currently Playing')
-                .attachFiles(['resources/latest.gif'])
-                .setDescription(songChangeListener.getCurrentSong())
-        );
-    ***REMOVED***);
-
-    const lpCommand = new Command(['lastplayed', 'lp'], (client, msg) => ***REMOVED***
-        msg.channel.send(
-            new MessageEmbed()
-                .setColor('#66ccff')
-                .setTitle('⏪ Last Played')
-                .attachFiles(['resources/latest_old.gif'])
-                .setDescription(songChangeListener.getLastSong())
-        );
-    ***REMOVED***);
-
-    const startCommand = new Command(['start'], (client, msg) => ***REMOVED***
-        if (msg.channel instanceof TextChannel) ***REMOVED***
-            msg.channel.send('✅ Will now send updates.');
-            const guildConstruct = client.getGuild(msg.guild);
-            if (guildConstruct) guildConstruct.text = msg.channel;
-        ***REMOVED***
-    ***REMOVED***);
-
-    const stopCommand = new Command(['stop'], (client, msg) => ***REMOVED***
-        msg.channel.send('❌ Will no longer send updates.');
-        const guildConstruct = client.getGuild(msg.guild);
-        if (guildConstruct) guildConstruct.text = null;
-    ***REMOVED***);
-
-    const notifyInCommand = new Command(['notifyin'], (client, msg) => ***REMOVED***
-        const text = msg.mentions?.channels?.first();
-        if (text instanceof TextChannel) ***REMOVED***
-            msg.channel.send('✅ Will now send updates there.');
-            const guildConstruct = client.getGuild(msg.guild);
-            if (guildConstruct) guildConstruct.text = text;
-        ***REMOVED***
-    ***REMOVED***);
-
-    const statCommand = new Command(['stats', 'uptime', 'info'], (client, msg) => ***REMOVED***
-        msg.channel.send(
-            new MessageEmbed()
-                .setColor('#0099ff')
-                .setTitle('📊 Stats')
-                .addField('🎶 Songs Played', songChangeListener.getSongsPlayed())
-                .addField('⏱️ Runtime', client.etime())
-                .addField('📅 Up Since', client.getStartDate().toUTCString())
-        );
-    ***REMOVED***);
-
-    const echoCommand = new Command(['echo'], (client, msg) => ***REMOVED***
-        console.log(msg.content);
-    ***REMOVED***);
-
-    client.registerCommands([joinCommand, leaveCommand, npCommand, lpCommand, startCommand, stopCommand, notifyInCommand, statCommand, echoCommand]);
+    const client = new LofiClient();
+    client.registerEmitter('songChangeListener', songChangeListener);
+    client.setSongListener(songChangeListener);
+    client.load();
+    client.broadcastSound(url);
+    client.login(isDevelopment? TEST_BOT_TOKEN : BOT_TOKEN);
 
     process.on('SIGINT', () => ***REMOVED***
         songChangeListener.end();
@@ -131,6 +37,6 @@ const main = async (): Promise<void> => ***REMOVED***
         client.destroy();
         process.exit(0);
     ***REMOVED***);
-***REMOVED***;
+***REMOVED***
 
 main();
