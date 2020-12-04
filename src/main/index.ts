@@ -41,6 +41,7 @@ const main = async (): Promise<void> => ***REMOVED***
 
     const joinCommand = new Command(['play', 'join', 'p'], (client, msg) => ***REMOVED***
         if (!msg.member.voice.channel) return msg.channel.send('You\'re not in a voice channel?');
+        if (msg.guild.me.voice.channel === msg.member.voice.channel) return msg.channel.send('Already in your voice channel.');
         msg.member.voice.channel.join()
         .then(connection => ***REMOVED***
             let dispatcher = connection.play(client.getBroadcast(), ***REMOVED***
@@ -99,7 +100,12 @@ const main = async (): Promise<void> => ***REMOVED***
     ***REMOVED***);
 
     const notifyInCommand = new Command(['notifyin'], (client, msg) => ***REMOVED***
-        console.log(msg.content);
+        const text = msg.mentions?.channels?.first();
+        if (text instanceof TextChannel) ***REMOVED***
+            msg.channel.send('✅ Will now send updates there.');
+            const guildConstruct = client.getGuild(msg.guild);
+            if (guildConstruct) guildConstruct.text = text;
+        ***REMOVED***
     ***REMOVED***);
 
     const statCommand = new Command(['stats', 'uptime', 'info'], (client, msg) => ***REMOVED***
@@ -113,7 +119,7 @@ const main = async (): Promise<void> => ***REMOVED***
         );
     ***REMOVED***);
 
-    client.registerCommands([joinCommand, npCommand, lpCommand, startCommand, stopCommand, leaveCommand, statCommand]);
+    client.registerCommands([joinCommand, leaveCommand, npCommand, lpCommand, startCommand, stopCommand, notifyInCommand, statCommand]);
 
     process.on('SIGINT', () => ***REMOVED***
         songChangeListener.end();
