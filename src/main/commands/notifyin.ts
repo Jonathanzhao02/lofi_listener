@@ -17,6 +17,6 @@ export default class NotifyInCommand extends Command ***REMOVED***
     exec(message: Message): void ***REMOVED***
         const text = message.mentions?.channels?.first();
         message.channel.send('✅ Will now send updates there.');
-        this.client.getServer(message.guild)?.setNotificationChannel(text);
+        this.client.getServer(message.guild.id)?.setNotificationChannel(text);
     ***REMOVED***
 ***REMOVED***

@@ -15,13 +15,21 @@ export default class StatsCommand extends Command ***REMOVED***
     ***REMOVED***
 
     exec(message: Message): void ***REMOVED***
+        const embed = new MessageEmbed()
+            .setColor('#0099ff')
+            .setTitle('📊 Stats')
+            .addField('🎶 Songs Played', this.client.getSongsPlayed())
+            .addField('⏱️ Runtime', this.client.etime())
+            .addField('📅 Up Since', this.client.getStartDate().toUTCString());
+
+        if (this.client.hasServer(message.guild.id)) ***REMOVED***
+            embed
+                .addField('\u200B', '\u200B')
+                .addField('👨 You\'ve been listening for', this.client.getServer(message.guild.id).etime());
+        ***REMOVED***
+
         message.channel.send(
-            new MessageEmbed()
-                .setColor('#0099ff')
-                .setTitle('📊 Stats')
-                .addField('🎶 Songs Played', this.client.getSongsPlayed())
-                .addField('⏱️ Runtime', this.client.etime())
-                .addField('📅 Up Since', this.client.getStartDate().toUTCString())
+            embed
         );
     ***REMOVED***
 ***REMOVED***

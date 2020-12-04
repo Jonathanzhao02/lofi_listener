@@ -16,6 +16,6 @@ export default class StopCommand extends Command ***REMOVED***
 
     exec(message: Message): void ***REMOVED***
         message.channel.send('❌ Will no longer send updates.');
-        this.client.getServer(message.guild)?.setNotifications(false);
+        this.client.getServer(message.guild.id)?.setNotifications(false);
     ***REMOVED***
 ***REMOVED***

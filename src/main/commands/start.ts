@@ -16,6 +16,6 @@ export default class StartCommand extends Command ***REMOVED***
 
     exec(message: Message): void ***REMOVED***
         message.channel.send('✅ Will now send updates.');
-        this.client.getServer(message.guild)?.setNotifications(true);
+        this.client.getServer(message.guild.id)?.setNotifications(true);
     ***REMOVED***
 ***REMOVED***

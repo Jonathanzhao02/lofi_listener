@@ -1,24 +1,43 @@
 import ***REMOVED*** AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler ***REMOVED*** from 'discord-akairo';
-import ***REMOVED*** VoiceBroadcast, Guild, MessageEmbed, TextChannel, NewsChannel, DMChannel, VoiceChannel ***REMOVED*** from 'discord.js';
+import ***REMOVED*** VoiceBroadcast, Guild, MessageEmbed, TextChannel, NewsChannel, DMChannel, VoiceChannel, Snowflake ***REMOVED*** from 'discord.js';
 import ***REMOVED*** EventEmitter ***REMOVED*** from 'events';
 import SongChangeListener from './SongChangeListener';
 
 const ***REMOVED*** BOT_PREFIX ***REMOVED*** = require('../config.json');
 const MILLIS = [31557600000, 2629800000, 604800000, 86400000, 3600000, 60000, 1000];
-const MILLIS_LABELS = ['Years', 'Months', 'Weeks', 'Days', 'Hours', 'Minutes', 'Seconds'];
+const MILLIS_LABELS = ['years', 'months', 'weeks', 'days', 'hours', 'minutes', 'seconds'];
 
 type ServerSettings = ***REMOVED***
     notifications: boolean
 ***REMOVED***
 
+function etimeLabeled(startTime: number): string ***REMOVED***
+    let etime = Date.now() - startTime;
+    const times = [];
+    let result = '';
+
+    for (let i = 0; i < MILLIS.length; i++) ***REMOVED***
+        const time = Math.floor(etime / MILLIS[i]);
+        if (time > 0) ***REMOVED***
+            result = `\`$***REMOVED***time***REMOVED***\` $***REMOVED***MILLIS_LABELS[i]***REMOVED***`;
+            break;
+        ***REMOVED***
+    ***REMOVED***
+
+    return result;
+***REMOVED***
+
 export class Server ***REMOVED***
     private notificationChannel: TextChannel | NewsChannel | DMChannel;
     private voiceChannel: VoiceChannel;
+    private startTime: number;
     private notifications: boolean;
+    private id: Snowflake;
 
-    constructor(settings: ServerSettings = ***REMOVED***
+    constructor(id: Snowflake, settings: ServerSettings = ***REMOVED***
         notifications: true
     ***REMOVED***) ***REMOVED***
+        this.startTime = Date.now();
         this.notifications = settings.notifications;
     ***REMOVED***
 
@@ -46,6 +65,10 @@ export class Server ***REMOVED***
     setNotifications(on: boolean): void ***REMOVED***
         this.notifications = on;
     ***REMOVED***
+
+    etime(): string ***REMOVED***
+        return etimeLabeled(this.startTime);
+    ***REMOVED***
 ***REMOVED***
 
 export default class LofiClient extends AkairoClient ***REMOVED***
@@ -53,7 +76,7 @@ export default class LofiClient extends AkairoClient ***REMOVED***
     private inhibitorHandler: InhibitorHandler;
     private listenerHandler: ListenerHandler;
     private broadcast: VoiceBroadcast;
-    private servers: Map<Guild, Server>;
+    private servers: Map<Snowflake, Server>;
     private startTime: number;
     private songListener: SongChangeListener;
     private songsPlayed: number;
@@ -83,7 +106,7 @@ export default class LofiClient extends AkairoClient ***REMOVED***
         ***REMOVED***);
 
         this.broadcast = this.voice.createBroadcast();
-        this.servers = new Map<Guild, Server>();
+        this.servers = new Map<Snowflake, Server>();
         this.startTime = Date.now();
         this.songsPlayed = 0;
 
@@ -114,20 +137,20 @@ export default class LofiClient extends AkairoClient ***REMOVED***
         ***REMOVED***);
     ***REMOVED***
 
-    getServer(guild: Guild): Server ***REMOVED***
-        return this.servers.get(guild);
+    getServer(id: Snowflake): Server ***REMOVED***
+        return this.servers.get(id);
     ***REMOVED***
 
-    addServer(guild: Guild, server: Server): Map<Guild, Server> ***REMOVED***
-        return this.servers.set(guild, server);
+    addServer(id: Snowflake, server: Server): Map<Snowflake, Server> ***REMOVED***
+        return this.servers.set(id, server);
     ***REMOVED***
 
-    hasServer(guild: Guild): boolean ***REMOVED***
-        return this.servers.has(guild);
+    hasServer(id: Snowflake): boolean ***REMOVED***
+        return this.servers.has(id);
     ***REMOVED***
 
-    removeServer(guild: Guild): boolean ***REMOVED***
-        return this.servers.delete(guild);
+    removeServer(id: Snowflake): boolean ***REMOVED***
+        return this.servers.delete(id);
     ***REMOVED***
 
     setSongListener(listener: SongChangeListener): void ***REMOVED***
@@ -151,19 +174,7 @@ export default class LofiClient extends AkairoClient ***REMOVED***
     ***REMOVED***
 
     etime(): string ***REMOVED***
-        let etime = Date.now() - this.startTime;
-        const times = [];
-        let result = '';
-
-        for (let i = 0; i < MILLIS.length; i++) ***REMOVED***
-            const time = Math.floor(etime / MILLIS[i]);
-            if (time > 0) ***REMOVED***
-                result = `$***REMOVED***MILLIS_LABELS[i]***REMOVED***: \`$***REMOVED***time***REMOVED***\``;
-                break;
-            ***REMOVED***
-        ***REMOVED***
-
-        return result;
+        return etimeLabeled(this.startTime);
     ***REMOVED***
 
     getStartDate(): Date ***REMOVED***

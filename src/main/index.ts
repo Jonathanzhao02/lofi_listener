@@ -20,7 +20,6 @@ function getBestFormat(url: string): Promise<string> ***REMOVED***
 
 async function main(): Promise<void> ***REMOVED***
     const url = await getBestFormat(STREAM_URL);
-
     const songChangeListener = new SongChangeListener(url);
     songChangeListener.init();
 
@@ -28,14 +27,13 @@ async function main(): Promise<void> ***REMOVED***
     client.registerEmitter('songChangeListener', songChangeListener);
     client.setSongListener(songChangeListener);
     client.load();
-    client.broadcastSound(url);
     client.login(isDevelopment? TEST_BOT_TOKEN : BOT_TOKEN);
+    client.broadcastSound(url);
 
-    process.on('SIGINT', () => ***REMOVED***
+    process.on('beforeExit', () => ***REMOVED***
         songChangeListener.end();
         console.log('Logging out');
         client.destroy();
-        process.exit(0);
     ***REMOVED***);
 ***REMOVED***
 
