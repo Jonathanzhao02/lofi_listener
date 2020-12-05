@@ -17,13 +17,16 @@ export default class PingCommand extends Command ***REMOVED***
                     default: BOT_PREFIX
                 ***REMOVED***
             ],
-            channel: 'guild'
+            channel: 'guild',
+            cooldown: 1000
         ***REMOVED***);
     ***REMOVED***
 
     async exec(message: Message, args: any): Promise<Message> ***REMOVED***
-        const oldPrefix = this.client.settings.get(message.guild.id, 'prefix', BOT_PREFIX);
-        await this.client.settings.set(message.guild.id, 'prefix', args.prefix);
+        if (args.prefix.length > 1) return message.reply('Prefix must be one character!');
+        const oldPrefix = this.client.provider.get(message.guild.id, 'settings.prefix', BOT_PREFIX);
+        await this.client.provider.set(message.guild.id, 'settings.prefix', args.prefix);
+        this.client.getServer(message.guild.id)?.setPrefix(args.prefix);
         return message.reply(`Prefix changed from $***REMOVED***oldPrefix***REMOVED*** to $***REMOVED***args.prefix***REMOVED***.`);
     ***REMOVED***
 ***REMOVED***

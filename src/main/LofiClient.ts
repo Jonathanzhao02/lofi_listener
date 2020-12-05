@@ -1,78 +1,13 @@
-import ***REMOVED*** AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler, MongooseProvider ***REMOVED*** from 'discord-akairo';
-import ***REMOVED*** VoiceBroadcast, MessageEmbed, TextChannel, NewsChannel, DMChannel, VoiceChannel, Snowflake ***REMOVED*** from 'discord.js';
+import ***REMOVED*** AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler ***REMOVED*** from 'discord-akairo';
+import ***REMOVED*** VoiceBroadcast, MessageEmbed, Snowflake ***REMOVED*** from 'discord.js';
 import mongoose from 'mongoose';
 import ***REMOVED*** EventEmitter ***REMOVED*** from 'events';
 import SongChangeListener from './SongChangeListener';
+import Server from './Server';
 import ServerSchema from './models/ServerSchema';
-const ***REMOVED*** DB_URL ***REMOVED*** = require('../config.json');
+import ServerMongooseProvider from './providers/ServerMongooseProvider';
 
-const ***REMOVED*** BOT_PREFIX ***REMOVED*** = require('../config.json');
-const MILLIS = [31557600000, 2629800000, 604800000, 86400000, 3600000, 60000, 1000];
-const MILLIS_LABELS = ['years', 'months', 'weeks', 'days', 'hours', 'minutes', 'seconds'];
-
-type ServerSettings = ***REMOVED***
-    notifications: boolean
-***REMOVED***
-
-function etimeLabeled(startTime: number): string ***REMOVED***
-    let etime = Date.now() - startTime;
-    const times = [];
-    let result = '';
-
-    for (let i = 0; i < MILLIS.length; i++) ***REMOVED***
-        const time = Math.floor(etime / MILLIS[i]);
-        if (time > 0) ***REMOVED***
-            result = `\`$***REMOVED***time***REMOVED***\` $***REMOVED***MILLIS_LABELS[i]***REMOVED***`;
-            break;
-        ***REMOVED***
-    ***REMOVED***
-
-    return result;
-***REMOVED***
-
-export class Server ***REMOVED***
-    private notificationChannel: TextChannel | NewsChannel | DMChannel;
-    private voiceChannel: VoiceChannel;
-    private startTime: number;
-    private notifications: boolean;
-    private id: Snowflake;
-
-    constructor(id: Snowflake, settings: ServerSettings = ***REMOVED***
-        notifications: true
-    ***REMOVED***) ***REMOVED***
-        this.startTime = Date.now();
-        this.notifications = settings.notifications;
-    ***REMOVED***
-
-    setNotificationChannel(channel: TextChannel | NewsChannel | DMChannel): void ***REMOVED***
-        this.notificationChannel = channel;
-    ***REMOVED***
-
-    setVoiceChannel(channel: VoiceChannel): void ***REMOVED***
-        this.voiceChannel = channel;
-    ***REMOVED***
-
-    getNotificationChannel(): TextChannel | NewsChannel | DMChannel ***REMOVED***
-        return this.notificationChannel;
-    ***REMOVED***
-
-    getVoiceChannel(): VoiceChannel ***REMOVED***
-        return this.voiceChannel;
-    ***REMOVED***
-
-    sendNotification(msg: string | MessageEmbed): boolean ***REMOVED***
-        if (this.notifications) this.notificationChannel?.send(msg);
-        return this.notifications;
-    ***REMOVED***
-
-    setNotifications(on: boolean): void ***REMOVED***
-        this.notifications = on;
-    ***REMOVED***
-
-    etime(): string ***REMOVED***
-        return etimeLabeled(this.startTime);
-    ***REMOVED***
-***REMOVED***
+const ***REMOVED*** DB_URL, STATS_SAVE_INTERVAL, BOT_PREFIX ***REMOVED*** = require('../config.json');
 
 export default class LofiClient extends AkairoClient ***REMOVED***
     private commandHandler: CommandHandler;
@@ -81,9 +16,11 @@ export default class LofiClient extends AkairoClient ***REMOVED***
     private broadcast: VoiceBroadcast;
     private servers: Map<Snowflake, Server>;
     private startTime: number;
+    private totalTime: number;
     private songListener: SongChangeListener;
     private songsPlayed: number;
-    readonly settings: MongooseProvider;
+    private totalSongsPlayed: number;
+    readonly provider: ServerMongooseProvider;
 
     constructor() ***REMOVED***
         super(
@@ -98,12 +35,16 @@ export default class LofiClient extends AkairoClient ***REMOVED***
 
         this.commandHandler = new CommandHandler(this, ***REMOVED***
             directory: './build/commands/',
-            prefix: (message) => ***REMOVED***
-                if (message.guild) ***REMOVED***
-                    return this.settings.get(message.guild.id, 'prefix', BOT_PREFIX);
+            prefix: async (message): Promise<string> => ***REMOVED***
+                if (!message.guild) return BOT_PREFIX;
+
+                if (!this.hasServer(message.guild.id)) ***REMOVED***
+                    const server = new Server(this);
+                    await server.init(message);                    
+                    this.addServer(message.guild.id, server);
                 ***REMOVED***
 
-                return BOT_PREFIX;
+                return this.getServer(message.guild.id).getPrefix();
             ***REMOVED***
         ***REMOVED***);
 
@@ -126,7 +67,17 @@ export default class LofiClient extends AkairoClient ***REMOVED***
         this.registerEmitter('inhibitorHandler', this.inhibitorHandler);
         this.registerEmitter('listenerHandler', this.listenerHandler);
 
-        this.settings = new MongooseProvider(ServerSchema);
+        this.provider = new ServerMongooseProvider(ServerSchema);
+    ***REMOVED***
+
+    async saveStats(): Promise<void> ***REMOVED***
+        await this.provider.set('me', 'data.totalTime', Date.now() - this.startTime + this.totalTime);
+        await this.provider.set('me', 'data.totalSongs', this.songsPlayed + this.totalSongsPlayed);
+
+        for (const [id, server] of this.servers) ***REMOVED***
+            await this.provider.set(id, 'data.totalTime', server.totalEtime());
+            await this.provider.set(id, 'data.totalSongs', server.getTotalSongsPlayed());
+        ***REMOVED***
     ***REMOVED***
 
     async login(token: string): Promise<string> ***REMOVED***
@@ -136,7 +87,11 @@ export default class LofiClient extends AkairoClient ***REMOVED***
             useFindAndModify: false,
             useCreateIndex: true
         ***REMOVED***);
-        await this.settings.init();
+        await this.provider.init();
+        this.totalTime = this.provider.get('me', 'data.totalTime', 0);
+        this.totalSongsPlayed = this.provider.get('me', 'data.totalSongs', 0);
+        Server.setProvider(this.provider);
+        this.setInterval(this.saveStats.bind(this), STATS_SAVE_INTERVAL);
         return super.login(token);
     ***REMOVED***
 
@@ -184,10 +139,6 @@ export default class LofiClient extends AkairoClient ***REMOVED***
         return this.songListener;
     ***REMOVED***
 
-    setSongsPlayed(num: number): void ***REMOVED***
-        this.songsPlayed = num;
-    ***REMOVED***
-
     incrementSongsPlayed(): void ***REMOVED***
         this.songsPlayed++;
     ***REMOVED***
@@ -196,8 +147,16 @@ export default class LofiClient extends AkairoClient ***REMOVED***
         return this.songsPlayed;
     ***REMOVED***
 
-    etime(): string ***REMOVED***
-        return etimeLabeled(this.startTime);
+    getTotalSongsPlayed(): number ***REMOVED***
+        return this.totalSongsPlayed + this.songsPlayed;
+    ***REMOVED***
+
+    etime(): number ***REMOVED***
+        return Date.now() - this.startTime;
+    ***REMOVED***
+
+    totalEtime(): number ***REMOVED***
+        return Date.now() - this.startTime + this.totalTime;
     ***REMOVED***
 
     getStartDate(): Date ***REMOVED***

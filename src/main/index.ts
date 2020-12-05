@@ -32,24 +32,21 @@ async function main(): Promise<void> ***REMOVED***
 
     process.on('SIGINT', () => ***REMOVED***
         songChangeListener.end();
-        console.log('Logging out');
-        client.destroy();
+        console.log('Exiting');
         process.exit(0);
     ***REMOVED***);
 
     process.on('uncaughtException', err => ***REMOVED***
         console.log(err);
         songChangeListener.end();
-        console.log('Logging out');
-        client.destroy();
+        console.log('Exiting');
         process.exit(0);
     ***REMOVED***);
 
     process.on('unhandledRejection', err => ***REMOVED***
         console.log(err);
         songChangeListener.end();
-        console.log('Logging out');
-        client.destroy();
+        console.log('Exiting');
         process.exit(0);
     ***REMOVED***);
 ***REMOVED***
