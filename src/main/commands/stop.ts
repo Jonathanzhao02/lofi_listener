@@ -1,5 +1,5 @@
 import { Command } from 'discord-akairo';
-import { Message, MessageEmbed } from 'discord.js';
+import { Message } from 'discord.js';
 import LofiClient from '../LofiClient';
 
 export default class StopCommand extends Command {
@@ -14,8 +14,13 @@ export default class StopCommand extends Command {
         });
     }
 
-    exec(message: Message): void {
-        message.channel.send('❌ Will no longer send updates.');
-        this.client.getServer(message.guild.id)?.setNotifications(false);
+    async exec(message: Message): Promise<Message> {
+        const server = this.client.getServer(message.guild.id);
+
+        if (server?.getNotifications()) {
+            this.client.getServer(message.guild.id)?.setNotifications(false);
+            await this.client.provider.set(message.guild.id, 'settings.notificationsOn', false);
+            return message.channel.send('❌ Will no longer send updates.');
+        }
     }
 }

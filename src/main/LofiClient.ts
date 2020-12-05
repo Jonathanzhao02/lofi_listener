@@ -1,78 +1,13 @@
-import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler, MongooseProvider } from 'discord-akairo';
-import { VoiceBroadcast, MessageEmbed, TextChannel, NewsChannel, DMChannel, VoiceChannel, Snowflake } from 'discord.js';
+import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler } from 'discord-akairo';
+import { VoiceBroadcast, MessageEmbed, Snowflake } from 'discord.js';
 import mongoose from 'mongoose';
 import { EventEmitter } from 'events';
 import SongChangeListener from './SongChangeListener';
+import Server from './Server';
 import ServerSchema from './models/ServerSchema';
-const { DB_URL } = require('../config.json');
+import ServerMongooseProvider from './providers/ServerMongooseProvider';
 
-const { BOT_PREFIX } = require('../config.json');
-const MILLIS = [31557600000, 2629800000, 604800000, 86400000, 3600000, 60000, 1000];
-const MILLIS_LABELS = ['years', 'months', 'weeks', 'days', 'hours', 'minutes', 'seconds'];
-
-type ServerSettings = {
-    notifications: boolean
-}
-
-function etimeLabeled(startTime: number): string {
-    let etime = Date.now() - startTime;
-    const times = [];
-    let result = '';
-
-    for (let i = 0; i < MILLIS.length; i++) {
-        const time = Math.floor(etime / MILLIS[i]);
-        if (time > 0) {
-            result = `\`${time}\` ${MILLIS_LABELS[i]}`;
-            break;
-        }
-    }
-
-    return result;
-}
-
-export class Server {
-    private notificationChannel: TextChannel | NewsChannel | DMChannel;
-    private voiceChannel: VoiceChannel;
-    private startTime: number;
-    private notifications: boolean;
-    private id: Snowflake;
-
-    constructor(id: Snowflake, settings: ServerSettings = {
-        notifications: true
-    }) {
-        this.startTime = Date.now();
-        this.notifications = settings.notifications;
-    }
-
-    setNotificationChannel(channel: TextChannel | NewsChannel | DMChannel): void {
-        this.notificationChannel = channel;
-    }
-
-    setVoiceChannel(channel: VoiceChannel): void {
-        this.voiceChannel = channel;
-    }
-
-    getNotificationChannel(): TextChannel | NewsChannel | DMChannel {
-        return this.notificationChannel;
-    }
-
-    getVoiceChannel(): VoiceChannel {
-        return this.voiceChannel;
-    }
-
-    sendNotification(msg: string | MessageEmbed): boolean {
-        if (this.notifications) this.notificationChannel?.send(msg);
-        return this.notifications;
-    }
-
-    setNotifications(on: boolean): void {
-        this.notifications = on;
-    }
-
-    etime(): string {
-        return etimeLabeled(this.startTime);
-    }
-}
+const { DB_URL, STATS_SAVE_INTERVAL, BOT_PREFIX } = require('../config.json');
 
 export default class LofiClient extends AkairoClient {
     private commandHandler: CommandHandler;
@@ -81,9 +16,11 @@ export default class LofiClient extends AkairoClient {
     private broadcast: VoiceBroadcast;
     private servers: Map<Snowflake, Server>;
     private startTime: number;
+    private totalTime: number;
     private songListener: SongChangeListener;
     private songsPlayed: number;
-    readonly settings: MongooseProvider;
+    private totalSongsPlayed: number;
+    readonly provider: ServerMongooseProvider;
 
     constructor() {
         super(
@@ -98,12 +35,16 @@ export default class LofiClient extends AkairoClient {
 
         this.commandHandler = new CommandHandler(this, {
             directory: './build/commands/',
-            prefix: (message) => {
-                if (message.guild) {
-                    return this.settings.get(message.guild.id, 'prefix', BOT_PREFIX);
+            prefix: async (message): Promise<string> => {
+                if (!message.guild) return BOT_PREFIX;
+
+                if (!this.hasServer(message.guild.id)) {
+                    const server = new Server(this);
+                    await server.init(message);                    
+                    this.addServer(message.guild.id, server);
                 }
 
-                return BOT_PREFIX;
+                return this.getServer(message.guild.id).getPrefix();
             }
         });
 
@@ -126,7 +67,17 @@ export default class LofiClient extends AkairoClient {
         this.registerEmitter('inhibitorHandler', this.inhibitorHandler);
         this.registerEmitter('listenerHandler', this.listenerHandler);
 
-        this.settings = new MongooseProvider(ServerSchema);
+        this.provider = new ServerMongooseProvider(ServerSchema);
+    }
+
+    async saveStats(): Promise<void> {
+        await this.provider.set('me', 'data.totalTime', Date.now() - this.startTime + this.totalTime);
+        await this.provider.set('me', 'data.totalSongs', this.songsPlayed + this.totalSongsPlayed);
+
+        for (const [id, server] of this.servers) {
+            await this.provider.set(id, 'data.totalTime', server.totalEtime());
+            await this.provider.set(id, 'data.totalSongs', server.getTotalSongsPlayed());
+        }
     }
 
     async login(token: string): Promise<string> {
@@ -136,7 +87,11 @@ export default class LofiClient extends AkairoClient {
             useFindAndModify: false,
             useCreateIndex: true
         });
-        await this.settings.init();
+        await this.provider.init();
+        this.totalTime = this.provider.get('me', 'data.totalTime', 0);
+        this.totalSongsPlayed = this.provider.get('me', 'data.totalSongs', 0);
+        Server.setProvider(this.provider);
+        this.setInterval(this.saveStats.bind(this), STATS_SAVE_INTERVAL);
         return super.login(token);
     }
 
@@ -184,10 +139,6 @@ export default class LofiClient extends AkairoClient {
         return this.songListener;
     }
 
-    setSongsPlayed(num: number): void {
-        this.songsPlayed = num;
-    }
-
     incrementSongsPlayed(): void {
         this.songsPlayed++;
     }
@@ -196,8 +147,16 @@ export default class LofiClient extends AkairoClient {
         return this.songsPlayed;
     }
 
-    etime(): string {
-        return etimeLabeled(this.startTime);
+    getTotalSongsPlayed(): number {
+        return this.totalSongsPlayed + this.songsPlayed;
+    }
+
+    etime(): number {
+        return Date.now() - this.startTime;
+    }
+
+    totalEtime(): number {
+        return Date.now() - this.startTime + this.totalTime;
     }
 
     getStartDate(): Date {

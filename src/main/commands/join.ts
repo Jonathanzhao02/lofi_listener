@@ -1,6 +1,7 @@
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
-import LofiClient, { Server } from '../LofiClient';
+import LofiClient from '../LofiClient';
+import Server from '../Server';
 
 export default class JoinCommand extends Command {
     client: LofiClient;
@@ -34,14 +35,10 @@ export default class JoinCommand extends Command {
 
             connection.on('disconnect', () => {
                 dispatcher.destroy();
-                this.client.removeServer(message.guild.id);
+                this.client.getServer(message.guild.id)?.setConnected(false);
             });
+
+            this.client.getServer(message.guild.id)?.setConnected(true);
         });
-        if (!this.client.hasServer(message.guild.id)) {
-            const server = new Server(message.guild.id);
-            server.setNotificationChannel(message.channel);
-            server.setVoiceChannel(message.member.voice.channel);
-            this.client.addServer(message.guild.id, server);
-        }
     }
 }

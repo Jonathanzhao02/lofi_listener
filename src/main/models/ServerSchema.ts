@@ -1,18 +1,62 @@
-import mongoose from 'mongoose';
+import mongoose, { Document } from 'mongoose';
+const { BOT_PREFIX } = require('../../config.json');
 const Schema = mongoose.Schema;
 
-export default mongoose.model('server', new Schema(
+const ServerSchema = new Schema(
     {
         id: {
             type: String,
             required: true
         },
         settings: {
-            type: Object,
-            required: true
+            prefix: {
+                type: String,
+                minlength: 1,
+                maxlength: 1,
+                default: BOT_PREFIX
+            },
+            notificationsOn: {
+                type: Boolean,
+                default: true
+            },
+            notificationChannel: {
+                type: String,
+                default: ''
+            }
+        },
+        data: {
+            totalTime: {
+                type: Number,
+                min: 0,
+                default: 0
+            },
+            totalSongs: {
+                type: Number,
+                min: 0,
+                default: 0
+            }
         }
     },
     {
         minimize: false
     }
-));
+);
+
+export interface ServerSettings {
+    prefix?: string,
+    notificationsOn?: boolean,
+    notificationChannel?: string
+}
+
+export interface ServerData {
+    totalTime?: number,
+    totalSongs?: number
+}
+
+export interface ServerDocument extends Document {
+    id: string,
+    settings: ServerSettings,
+    data: ServerData
+}
+
+export default mongoose.model<ServerDocument>('server', ServerSchema);

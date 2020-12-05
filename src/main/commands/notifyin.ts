@@ -14,9 +14,11 @@ export default class NotifyInCommand extends Command {
         });
     }
 
-    exec(message: Message): void {
+    async exec(message: Message): Promise<Message> {
         const text = message.mentions?.channels?.first();
-        message.channel.send('✅ Will now send updates there.');
+        if (!text) return message.channel.send('No valid channel found.');
+        await this.client.provider.set(message.guild.id, 'settings.notificationChannel', text.id);
         this.client.getServer(message.guild.id)?.setNotificationChannel(text);
+        return message.channel.send('✅ Will now send updates there.');
     }
 }

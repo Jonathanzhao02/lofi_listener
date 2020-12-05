@@ -1,6 +1,7 @@
 import { Command } from 'discord-akairo';
 import { Message, MessageEmbed } from 'discord.js';
 import LofiClient from '../LofiClient';
+import { etimeLabeled } from '../util/Etime';
 
 export default class StatsCommand extends Command {
     client: LofiClient;
@@ -17,19 +18,27 @@ export default class StatsCommand extends Command {
     exec(message: Message): void {
         const embed = new MessageEmbed()
             .setColor('#0099ff')
-            .setTitle('📊 Stats')
+            .setTitle('📊 Stats 📊')
+            .addField('\u200B', '**Current Session**')
+            .addField('⏱️ Runtime', etimeLabeled(this.client.etime()))
             .addField('🎶 Songs Played', this.client.getSongsPlayed())
-            .addField('⏱️ Runtime', this.client.etime())
-            .addField('📅 Up Since', this.client.getStartDate().toUTCString());
+            .addField('📅 Up Since', this.client.getStartDate().toUTCString())
+            .addField('\u200B', '**Totals**')
+            .addField('⏱️ Runtime', etimeLabeled(this.client.totalEtime()))
+            .addField('🎶 Songs Played', this.client.getTotalSongsPlayed());
 
         if (this.client.hasServer(message.guild.id)) {
+            const server = this.client.getServer(message.guild.id);
             embed
-                .addField('\u200B', '\u200B')
-                .addField('👨 You\'ve been listening for', this.client.getServer(message.guild.id).etime());
+                .addField('\u200B', '**👨 Server Stats 👨**')
+                .addField('\u200B', '**Current Session**')
+                .addField('⏱️ You\'ve been listening for', etimeLabeled(server.etime()))
+                .addField('🎶 You\'ve listened to', `${server.getSongsPlayed()} songs`)
+                .addField('\u200B', '**Totals**')
+                .addField('⏱️ You\'ve listened for', etimeLabeled(server.totalEtime()))
+                .addField('🎶 You\'ve listened to', `${server.getTotalSongsPlayed()} songs`);
         }
 
-        message.channel.send(
-            embed
-        );
+        message.channel.send(embed);
     }
 }

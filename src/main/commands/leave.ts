@@ -16,6 +16,5 @@ export default class LeaveCommand extends Command {
 
     exec(message: Message): void {
         message.guild.me.voice.channel.leave();
-        this.client.removeServer(message.guild.id);
     }
 }
