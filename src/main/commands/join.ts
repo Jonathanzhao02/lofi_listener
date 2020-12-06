@@ -17,7 +17,7 @@ export default class JoinCommand extends Command {
 
     exec(message: Message): void {
         if (!message.member.voice.channel) {
-            message.channel.send('You\'re not in a voice channel?');
+            message.channel.send('You\'re not in a voice channel.');
             return;
         } else if (message.guild.me.voice.channel === message.member.voice.channel) {
             message.channel.send('Already in your voice channel.');

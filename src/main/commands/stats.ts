@@ -1,7 +1,7 @@
 import { Command } from 'discord-akairo';
 import { Message, MessageEmbed } from 'discord.js';
 import LofiClient from '../LofiClient';
-import { etimeLabeled } from '../util/Etime';
+import { etimeLabeled } from '../util/etime';
 
 export default class StatsCommand extends Command {
     client: LofiClient;

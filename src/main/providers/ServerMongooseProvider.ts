@@ -1,7 +1,7 @@
 import { Provider } from 'discord-akairo';
 import { Model } from 'mongoose';
 import { ServerDocument } from '../models/ServerSchema';
-import { traverseSet, traverseGet, traverseDelete } from '../util/Traverse';
+import { traverseSet, traverseGet, traverseDelete } from '../util/traverse';
 
 export default class ServerMongooseProvider extends Provider {
     model: Model<ServerDocument>;

@@ -10,7 +10,7 @@ export default class NowPlayingCommand extends Command {
            aliases: ['nowplaying', 'np'],
            description: 'Get the currently playing song.',
            channel: 'guild',
-           cooldown: 1000
+           cooldown: 5000
         });
     }
 
