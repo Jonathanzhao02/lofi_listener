@@ -10,7 +10,7 @@ export default class LastPlayedCommand extends Command ***REMOVED***
            aliases: ['lastplayed', 'lastplaying', 'lp'],
            description: 'Get the last played song.',
            channel: 'guild',
-           cooldown: 1000
+           cooldown: 5000
         ***REMOVED***);
     ***REMOVED***
 

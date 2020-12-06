@@ -17,7 +17,7 @@ export default class JoinCommand extends Command ***REMOVED***
 
     exec(message: Message): void ***REMOVED***
         if (!message.member.voice.channel) ***REMOVED***
-            message.channel.send('You\'re not in a voice channel?');
+            message.channel.send('You\'re not in a voice channel.');
             return;
         ***REMOVED*** else if (message.guild.me.voice.channel === message.member.voice.channel) ***REMOVED***
             message.channel.send('Already in your voice channel.');

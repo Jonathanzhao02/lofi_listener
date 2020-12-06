@@ -1,7 +1,7 @@
 import ***REMOVED*** Command ***REMOVED*** from 'discord-akairo';
 import ***REMOVED*** Message, MessageEmbed ***REMOVED*** from 'discord.js';
 import LofiClient from '../LofiClient';
-import ***REMOVED*** etimeLabeled ***REMOVED*** from '../util/Etime';
+import ***REMOVED*** etimeLabeled ***REMOVED*** from '../util/etime';
 
 export default class StatsCommand extends Command ***REMOVED***
     client: LofiClient;

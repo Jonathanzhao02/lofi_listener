@@ -10,11 +10,15 @@ export default class LeaveCommand extends Command ***REMOVED***
            aliases: ['leave'],
            description: 'Leave the bot from a user\'s voice channel.',
            channel: 'guild',
-           cooldown: 1000
+           cooldown: 5000
         ***REMOVED***);
     ***REMOVED***
 
     exec(message: Message): void ***REMOVED***
-        message.guild.me.voice.channel.leave();
+        if (message.guild.me.voice.channel) ***REMOVED***
+            message.guild.me.voice.channel.leave();
+        ***REMOVED*** else ***REMOVED***
+            message.channel.send('Not in a voice channel.');
+        ***REMOVED***
     ***REMOVED***
 ***REMOVED***

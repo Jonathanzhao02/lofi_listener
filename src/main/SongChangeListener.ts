@@ -56,7 +56,7 @@ function isValidUrl(url: string): boolean ***REMOVED***
 
 function extractLatestGif(url: string): Promise<boolean> ***REMOVED***
     return new Promise<boolean>((resolve) => ***REMOVED***
-        exec(`ffmpeg -i $***REMOVED***url***REMOVED*** -hide_banner -loglevel fatal -vframes 30 -vf fps=15,select='not(mod(n\\,3))' -y resources/latest.gif`, (err, stdout, stderr) => ***REMOVED***
+        exec(`ffmpeg -i $***REMOVED***url***REMOVED*** -hide_banner -loglevel fatal -vframes 30 -vf fps=15,scale=960:-1,select='not(mod(n\\,3))' -y resources/latest.gif`, (err, stdout, stderr) => ***REMOVED***
             if (err || stderr) ***REMOVED***
                 console.log(`err: $***REMOVED***err ? err : stderr***REMOVED***`);
                 resolve(false);

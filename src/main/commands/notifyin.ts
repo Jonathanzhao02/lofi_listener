@@ -10,7 +10,7 @@ export default class NotifyInCommand extends Command ***REMOVED***
            aliases: ['notifyin', 'notify'],
            description: 'Send notifications to a certain channel.',
            channel: 'guild',
-           cooldown: 1000
+           cooldown: 5000
         ***REMOVED***);
     ***REMOVED***
 
