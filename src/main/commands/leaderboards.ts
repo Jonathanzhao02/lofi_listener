@@ -44,6 +44,8 @@ export default class LeaderboardsCommand extends Command ***REMOVED***
             embed.addField(`$***REMOVED***i+1***REMOVED***. $***REMOVED***await resolveGuildName(songLeaderboard[i].id, this.client)***REMOVED***`, `$***REMOVED***songLeaderboard[i].data.totalSongs***REMOVED*** songs`);
         ***REMOVED***
 
-        return message.channel.send(embed);
+        return message.channel.send(embed
+            .setFooter('Leaderboards update every hour!')
+        );
     ***REMOVED***
 ***REMOVED***

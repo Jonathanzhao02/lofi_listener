@@ -6,7 +6,8 @@ import * as fs from 'fs';
 
 const ***REMOVED*** CHANGE_THRESHOLD ***REMOVED*** = require('../config.json');
 
-function compareLevenshtein(a: string, b: string): number***REMOVED***
+function compareLevenshtein(a: string, b: string): number ***REMOVED***
+    if (!a || !b) return a?.length || b?.length;
     if(a.length == 0) return b.length; 
     if(b.length == 0) return a.length; 
 
@@ -125,7 +126,7 @@ export default class SongChangeListener extends EventEmitter ***REMOVED***
     loop(): void ***REMOVED***
         fs.copyFileSync('resources/latest.jpg', 'resources/latest_backup.jpg');
         extractLatestText(this.url).then(song => ***REMOVED***
-            if (song?.valueOf() !== this.currentSong.valueOf() && compareLevenshtein(song, this.currentSong) > CHANGE_THRESHOLD) ***REMOVED***
+            if (song?.valueOf() !== this.currentSong?.valueOf() && compareLevenshtein(song, this.currentSong) > CHANGE_THRESHOLD) ***REMOVED***
                 this.lastSong = this.currentSong;
                 this.currentSong = song;
                 this.songsPlayed++;
