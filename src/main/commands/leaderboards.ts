@@ -44,6 +44,8 @@ export default class LeaderboardsCommand extends Command {
             embed.addField(`${i+1}. ${await resolveGuildName(songLeaderboard[i].id, this.client)}`, `${songLeaderboard[i].data.totalSongs} songs`);
         }
 
-        return message.channel.send(embed);
+        return message.channel.send(embed
+            .setFooter('Leaderboards update every hour!')
+        );
     }
 }

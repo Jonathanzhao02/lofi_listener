@@ -5,13 +5,13 @@ export default class ReadyListener extends Listener {
     client: LofiClient;
 
     constructor() {
-        super('guilddelete', {
+        super('guildcreate', {
             emitter: 'client',
-            event: 'guildDelete'
+            event: 'guildCreate'
         });
     }
 
     async exec(guild): Promise<void> {
-        await this.client.provider.clear(guild.id);
+        await this.client.provider.getDocument(guild.id);
     }
 }
