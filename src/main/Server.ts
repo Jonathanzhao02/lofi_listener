@@ -1,4 +1,4 @@
-import { MessageEmbed, TextChannel, NewsChannel, DMChannel, VoiceChannel, Message, Snowflake } from 'discord.js';
+import { MessageEmbed, TextChannel, NewsChannel, DMChannel, VoiceChannel, Message, Snowflake, Permissions } from 'discord.js';
 import LofiClient from './LofiClient';
 import ServerMongooseProvider from './providers/ServerMongooseProvider';
 
@@ -17,6 +17,7 @@ export default class Server {
 
     private notificationsOn: boolean;
     private prefix: string;
+    private useGifs: boolean;
     private totalSongs: number;
     private totalTime: number;
 
@@ -32,10 +33,10 @@ export default class Server {
 
     async init(message: Message): Promise<void> {
         this.id = message.guild.id;
-        console.log(message.guild.region);
         const { settings, data } = await Server.provider.getDocument(this.id);
 
         this.prefix = settings.prefix;
+        this.useGifs = settings.useGifs;
         this.notificationsOn = settings.notificationsOn;
 
         const channel = message.guild.channels.resolve(settings.notificationChannel);
@@ -67,24 +68,38 @@ export default class Server {
 
     }
 
-    setNotificationChannel(channel: TextBasedChannel) {
+    getConnected(): boolean {
+        return this.connected;
+    }
+
+    setNotificationChannel(channel: TextBasedChannel): void {
         this.notificationChannel = channel;
     }
 
     sendNotification(msg: string | MessageEmbed): boolean {
-        if (this.notificationsOn && this.connected) {
-            this.notificationChannel?.send(msg);
-            this.sessionSongs++;
+        if (this.notificationsOn) {
+            if (!(this.notificationChannel instanceof DMChannel) && this.notificationChannel?.permissionsFor(this.client.user).has(Permissions.FLAGS.SEND_MESSAGES)) {
+                this.notificationChannel?.send(msg);
+            }
         }
-        return this.notificationsOn && this.connected;
+
+        return this.notificationsOn;
     }
 
-    setNotifications(on: boolean): void {
+    setNotificationsOn(on: boolean): void {
         this.notificationsOn = on;
     }
 
-    getNotifications(): boolean {
+    getNotificationsOn(): boolean {
         return this.notificationsOn;
+    }
+
+    getNotificationsChannel(): TextBasedChannel {
+        return this.notificationChannel;
+    }
+
+    incrementSongsPlayed(): number {
+        return this.sessionSongs++;
     }
 
     getSongsPlayed(): number {
@@ -109,5 +124,13 @@ export default class Server {
 
     getPrefix(): string {
         return this.prefix;
+    }
+
+    setUseGifs(on: boolean): void {
+        this.useGifs = on;
+    }
+
+    getUseGifs(): boolean {
+        return this.useGifs;
     }
 }

@@ -1,6 +1,7 @@
 import { Listener } from 'discord-akairo';
-import { MessageEmbed } from 'discord.js';
+import { Message } from 'discord.js';
 import LofiClient from '../LofiClient';
+import Server from '../Server';
 
 export default class SongChangeListener extends Listener {
     client: LofiClient;
@@ -12,14 +13,24 @@ export default class SongChangeListener extends Listener {
         });
     }
 
-    exec(current: string): void {
-        this.client.incrementSongsPlayed();
-        this.client.broadcastMessage(
-            new MessageEmbed()
-                .setColor('#66ccff')
-                .setTitle('▶️ Now Playing')
-                .attachFiles(['resources/latest.gif'])
-                .setDescription(current)
-        );
+    exec(): void {
+        this.client.pushLastSong();
+
+        this.client.foreachServer((server: Server): void => {
+            server.incrementSongsPlayed();
+
+            if (server.getNotificationsOn() && server.getConnected()) {
+                const cmdHandler = this.client.getCommandHandler();
+                cmdHandler.runCommand(
+                        new Message(
+                        this.client,
+                        null,
+                        server.getNotificationsChannel()
+                    ),
+                    cmdHandler.findCommand('nowplaying'),
+                    null
+                );
+            }
+        });
     }
 }

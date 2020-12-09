@@ -22,6 +22,10 @@ const ServerSchema = new Schema(
             notificationChannel: {
                 type: String,
                 default: ''
+            },
+            useGifs: {
+                type: Boolean,
+                default: true
             }
         },
         data: {
@@ -45,7 +49,8 @@ const ServerSchema = new Schema(
 export interface ServerSettings {
     prefix?: string,
     notificationsOn?: boolean,
-    notificationChannel?: string
+    notificationChannel?: string,
+    useGifs?: boolean
 }
 
 export interface ServerData {

@@ -17,6 +17,7 @@ export default class PingCommand extends Command {
     async exec(message: Message): Promise<void> {
         await message.reply('Quitting');
         await this.client.saveStats();
+        console.log('Logging out');
         return this.client.destroy();
     }
 }

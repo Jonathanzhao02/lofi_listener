@@ -5,7 +5,8 @@ export default class PingCommand extends Command {
     constructor() {
         super('ping', {
            aliases: ['ping'],
-           description: 'Pong!'
+           description: 'Pong!',
+           clientPermissions: ['SEND_MESSAGES']
         });
     }
 

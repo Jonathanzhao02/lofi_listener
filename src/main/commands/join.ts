@@ -1,7 +1,6 @@
 import { Command } from 'discord-akairo';
-import { Message } from 'discord.js';
+import { Message, DMChannel, Permissions } from 'discord.js';
 import LofiClient from '../LofiClient';
-import Server from '../Server';
 
 export default class JoinCommand extends Command {
     client: LofiClient;
@@ -13,6 +12,24 @@ export default class JoinCommand extends Command {
            channel: 'guild',
            cooldown: 1000
         });
+
+        this.clientPermissions = function(message: Message): string | string[] {
+            if (message.channel instanceof DMChannel) return;
+    
+            if (!message.channel.permissionsFor(this.client.user).has(Permissions.FLAGS.SEND_MESSAGES)) {
+                return 'SEND_MESSAGES';
+            }
+    
+            if (!message.member.voice.channel?.permissionsFor(this.client.user).has(Permissions.FLAGS.CONNECT)) {
+                return 'CONNECT';
+            }
+    
+            if (!message.member.voice.channel?.permissionsFor(this.client.user).has(Permissions.FLAGS.SPEAK)) {
+                return 'SPEAK';
+            }
+    
+            return null;
+        };
     }
 
     exec(message: Message): void {

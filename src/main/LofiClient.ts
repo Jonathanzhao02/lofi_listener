@@ -1,5 +1,5 @@
 import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler } from 'discord-akairo';
-import { VoiceBroadcast, MessageEmbed, Snowflake } from 'discord.js';
+import { VoiceBroadcast, Snowflake } from 'discord.js';
 import mongoose from 'mongoose';
 import { EventEmitter } from 'events';
 import SongChangeListener from './SongChangeListener';
@@ -7,7 +7,7 @@ import Server from './Server';
 import ServerSchema from './models/ServerSchema';
 import ServerMongooseProvider from './providers/ServerMongooseProvider';
 
-const { DB_URL, STATS_SAVE_INTERVAL, BOT_PREFIX } = require('../config.json');
+const { DB_URL, STATS_SAVE_INTERVAL, BOT_PREFIX, MAX_LAST_SONGS } = require('../config.json');
 
 export default class LofiClient extends AkairoClient {
     private commandHandler: CommandHandler;
@@ -20,6 +20,7 @@ export default class LofiClient extends AkairoClient {
     private songListener: SongChangeListener;
     private songsPlayed: number;
     private totalSongsPlayed: number;
+    private lastSongs: string[];
     readonly provider: ServerMongooseProvider;
 
     constructor() {
@@ -88,6 +89,7 @@ export default class LofiClient extends AkairoClient {
             useCreateIndex: true
         });
         await this.provider.init();
+        this.lastSongs = [];
         this.totalTime = this.provider.get('me', 'data.totalTime', 0);
         this.totalSongsPlayed = this.provider.get('me', 'data.totalSongs', 0);
         Server.setProvider(this.provider);
@@ -109,10 +111,8 @@ export default class LofiClient extends AkairoClient {
         this.broadcast.play(url);
     }
 
-    broadcastMessage(msg: string | MessageEmbed): void {
-        this.servers.forEach(server => {
-            server.sendNotification(msg);
-        });
+    foreachServer(handler: (Server) => void): void {
+        this.servers.forEach(server => handler(server));
     }
 
     getServer(id: Snowflake): Server {
@@ -139,10 +139,6 @@ export default class LofiClient extends AkairoClient {
         return this.songListener;
     }
 
-    incrementSongsPlayed(): void {
-        this.songsPlayed++;
-    }
-
     getSongsPlayed(): number {
         return this.songsPlayed;
     }
@@ -165,5 +161,22 @@ export default class LofiClient extends AkairoClient {
 
     getBroadcast(): VoiceBroadcast {
         return this.broadcast;
+    }
+
+    pushLastSong(): void {
+        this.lastSongs.unshift(this.songListener.getLastSong());
+        this.songsPlayed++;
+
+        while (this.lastSongs.length > MAX_LAST_SONGS) {
+            this.lastSongs.pop();
+        }
+    }
+
+    getLastSongs(): string {
+        return this.lastSongs.reduce((prev, current, index) => index + '. ' + prev + current + '\n', '');
+    }
+
+    getCommandHandler(): CommandHandler {
+        return this.commandHandler;
     }
 }

@@ -10,6 +10,7 @@ export default class NotifyInCommand extends Command {
            aliases: ['notifyin', 'notify'],
            description: 'Send notifications to a certain channel.',
            channel: 'guild',
+           clientPermissions: ['SEND_MESSAGES'],
            cooldown: 5000
         });
     }
