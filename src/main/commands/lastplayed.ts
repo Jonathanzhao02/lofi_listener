@@ -10,17 +10,25 @@ export default class LastPlayedCommand extends Command ***REMOVED***
            aliases: ['lastplayed', 'lastplaying', 'lp'],
            description: 'Get the last played song.',
            channel: 'guild',
+           clientPermissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
            cooldown: 5000
         ***REMOVED***);
     ***REMOVED***
 
     exec(message: Message): void ***REMOVED***
-        message.channel.send(
-            new MessageEmbed()
-                .setColor('#66ccff')
-                .setTitle('⏪ Last Played')
-                .attachFiles(['resources/latest_old.gif'])
-                .setDescription(this.client.getSongListener().getLastSong())
-        );
+        const embed = new MessageEmbed()
+            .setColor('#66ccff')
+            .setTitle('⏪ Last Played')
+            .setDescription(this.client.getLastSongs() || 'None');
+
+        const server = this.client.getServer(message.guild.id);
+
+        if (server.getUseGifs()) ***REMOVED***
+            embed.attachFiles(['resources/latest_old.gif']);
+        ***REMOVED*** else ***REMOVED***
+            embed.attachFiles(['resources/latest_old.jpg']);
+        ***REMOVED***
+
+        message.channel.send(embed);
     ***REMOVED***
 ***REMOVED***

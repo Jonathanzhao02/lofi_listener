@@ -1,4 +1,4 @@
-import ***REMOVED*** MessageEmbed, TextChannel, NewsChannel, DMChannel, VoiceChannel, Message, Snowflake ***REMOVED*** from 'discord.js';
+import ***REMOVED*** MessageEmbed, TextChannel, NewsChannel, DMChannel, VoiceChannel, Message, Snowflake, Permissions ***REMOVED*** from 'discord.js';
 import LofiClient from './LofiClient';
 import ServerMongooseProvider from './providers/ServerMongooseProvider';
 
@@ -17,6 +17,7 @@ export default class Server ***REMOVED***
 
     private notificationsOn: boolean;
     private prefix: string;
+    private useGifs: boolean;
     private totalSongs: number;
     private totalTime: number;
 
@@ -32,10 +33,10 @@ export default class Server ***REMOVED***
 
     async init(message: Message): Promise<void> ***REMOVED***
         this.id = message.guild.id;
-        console.log(message.guild.region);
         const ***REMOVED*** settings, data ***REMOVED*** = await Server.provider.getDocument(this.id);
 
         this.prefix = settings.prefix;
+        this.useGifs = settings.useGifs;
         this.notificationsOn = settings.notificationsOn;
 
         const channel = message.guild.channels.resolve(settings.notificationChannel);
@@ -67,24 +68,38 @@ export default class Server ***REMOVED***
 
     ***REMOVED***
 
-    setNotificationChannel(channel: TextBasedChannel) ***REMOVED***
+    getConnected(): boolean ***REMOVED***
+        return this.connected;
+    ***REMOVED***
+
+    setNotificationChannel(channel: TextBasedChannel): void ***REMOVED***
         this.notificationChannel = channel;
     ***REMOVED***
 
     sendNotification(msg: string | MessageEmbed): boolean ***REMOVED***
-        if (this.notificationsOn && this.connected) ***REMOVED***
-            this.notificationChannel?.send(msg);
-            this.sessionSongs++;
+        if (this.notificationsOn) ***REMOVED***
+            if (!(this.notificationChannel instanceof DMChannel) && this.notificationChannel?.permissionsFor(this.client.user).has(Permissions.FLAGS.SEND_MESSAGES)) ***REMOVED***
+                this.notificationChannel?.send(msg);
+            ***REMOVED***
         ***REMOVED***
-        return this.notificationsOn && this.connected;
+
+        return this.notificationsOn;
     ***REMOVED***
 
-    setNotifications(on: boolean): void ***REMOVED***
+    setNotificationsOn(on: boolean): void ***REMOVED***
         this.notificationsOn = on;
     ***REMOVED***
 
-    getNotifications(): boolean ***REMOVED***
+    getNotificationsOn(): boolean ***REMOVED***
         return this.notificationsOn;
+    ***REMOVED***
+
+    getNotificationsChannel(): TextBasedChannel ***REMOVED***
+        return this.notificationChannel;
+    ***REMOVED***
+
+    incrementSongsPlayed(): number ***REMOVED***
+        return this.sessionSongs++;
     ***REMOVED***
 
     getSongsPlayed(): number ***REMOVED***
@@ -109,5 +124,13 @@ export default class Server ***REMOVED***
 
     getPrefix(): string ***REMOVED***
         return this.prefix;
+    ***REMOVED***
+
+    setUseGifs(on: boolean): void ***REMOVED***
+        this.useGifs = on;
+    ***REMOVED***
+
+    getUseGifs(): boolean ***REMOVED***
+        return this.useGifs;
     ***REMOVED***
 ***REMOVED***

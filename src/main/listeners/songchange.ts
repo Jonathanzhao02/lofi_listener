@@ -1,6 +1,7 @@
 import ***REMOVED*** Listener ***REMOVED*** from 'discord-akairo';
-import ***REMOVED*** MessageEmbed ***REMOVED*** from 'discord.js';
+import ***REMOVED*** Message ***REMOVED*** from 'discord.js';
 import LofiClient from '../LofiClient';
+import Server from '../Server';
 
 export default class SongChangeListener extends Listener ***REMOVED***
     client: LofiClient;
@@ -12,14 +13,24 @@ export default class SongChangeListener extends Listener ***REMOVED***
         ***REMOVED***);
     ***REMOVED***
 
-    exec(current: string): void ***REMOVED***
-        this.client.incrementSongsPlayed();
-        this.client.broadcastMessage(
-            new MessageEmbed()
-                .setColor('#66ccff')
-                .setTitle('▶️ Now Playing')
-                .attachFiles(['resources/latest.gif'])
-                .setDescription(current)
-        );
+    exec(): void ***REMOVED***
+        this.client.pushLastSong();
+
+        this.client.foreachServer((server: Server): void => ***REMOVED***
+            server.incrementSongsPlayed();
+
+            if (server.getNotificationsOn() && server.getConnected()) ***REMOVED***
+                const cmdHandler = this.client.getCommandHandler();
+                cmdHandler.runCommand(
+                        new Message(
+                        this.client,
+                        null,
+                        server.getNotificationsChannel()
+                    ),
+                    cmdHandler.findCommand('nowplaying'),
+                    null
+                );
+            ***REMOVED***
+        ***REMOVED***);
     ***REMOVED***
 ***REMOVED***

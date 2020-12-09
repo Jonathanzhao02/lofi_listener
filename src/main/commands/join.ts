@@ -1,7 +1,6 @@
 import ***REMOVED*** Command ***REMOVED*** from 'discord-akairo';
-import ***REMOVED*** Message ***REMOVED*** from 'discord.js';
+import ***REMOVED*** Message, DMChannel, Permissions ***REMOVED*** from 'discord.js';
 import LofiClient from '../LofiClient';
-import Server from '../Server';
 
 export default class JoinCommand extends Command ***REMOVED***
     client: LofiClient;
@@ -13,6 +12,24 @@ export default class JoinCommand extends Command ***REMOVED***
            channel: 'guild',
            cooldown: 1000
         ***REMOVED***);
+
+        this.clientPermissions = function(message: Message): string | string[] ***REMOVED***
+            if (message.channel instanceof DMChannel) return;
+    
+            if (!message.channel.permissionsFor(this.client.user).has(Permissions.FLAGS.SEND_MESSAGES)) ***REMOVED***
+                return 'SEND_MESSAGES';
+            ***REMOVED***
+    
+            if (!message.member.voice.channel?.permissionsFor(this.client.user).has(Permissions.FLAGS.CONNECT)) ***REMOVED***
+                return 'CONNECT';
+            ***REMOVED***
+    
+            if (!message.member.voice.channel?.permissionsFor(this.client.user).has(Permissions.FLAGS.SPEAK)) ***REMOVED***
+                return 'SPEAK';
+            ***REMOVED***
+    
+            return null;
+        ***REMOVED***;
     ***REMOVED***
 
     exec(message: Message): void ***REMOVED***

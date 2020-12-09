@@ -18,6 +18,8 @@ export default class PingCommand extends Command ***REMOVED***
                 ***REMOVED***
             ],
             channel: 'guild',
+            clientPermissions: ['SEND_MESSAGES'],
+            userPermissions: ['ADMINISTRATOR'],
             cooldown: 1000
         ***REMOVED***);
     ***REMOVED***

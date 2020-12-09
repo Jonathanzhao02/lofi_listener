@@ -10,6 +10,7 @@ export default class LeaveCommand extends Command ***REMOVED***
            aliases: ['leave'],
            description: 'Leave the bot from a user\'s voice channel.',
            channel: 'guild',
+           clientPermissions: ['SEND_MESSAGES'],
            cooldown: 5000
         ***REMOVED***);
     ***REMOVED***

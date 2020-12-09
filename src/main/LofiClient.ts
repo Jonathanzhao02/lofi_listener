@@ -1,5 +1,5 @@
 import ***REMOVED*** AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler ***REMOVED*** from 'discord-akairo';
-import ***REMOVED*** VoiceBroadcast, MessageEmbed, Snowflake ***REMOVED*** from 'discord.js';
+import ***REMOVED*** VoiceBroadcast, Snowflake ***REMOVED*** from 'discord.js';
 import mongoose from 'mongoose';
 import ***REMOVED*** EventEmitter ***REMOVED*** from 'events';
 import SongChangeListener from './SongChangeListener';
@@ -7,7 +7,7 @@ import Server from './Server';
 import ServerSchema from './models/ServerSchema';
 import ServerMongooseProvider from './providers/ServerMongooseProvider';
 
-const ***REMOVED*** DB_URL, STATS_SAVE_INTERVAL, BOT_PREFIX ***REMOVED*** = require('../config.json');
+const ***REMOVED*** DB_URL, STATS_SAVE_INTERVAL, BOT_PREFIX, MAX_LAST_SONGS ***REMOVED*** = require('../config.json');
 
 export default class LofiClient extends AkairoClient ***REMOVED***
     private commandHandler: CommandHandler;
@@ -20,6 +20,7 @@ export default class LofiClient extends AkairoClient ***REMOVED***
     private songListener: SongChangeListener;
     private songsPlayed: number;
     private totalSongsPlayed: number;
+    private lastSongs: string[];
     readonly provider: ServerMongooseProvider;
 
     constructor() ***REMOVED***
@@ -88,6 +89,7 @@ export default class LofiClient extends AkairoClient ***REMOVED***
             useCreateIndex: true
         ***REMOVED***);
         await this.provider.init();
+        this.lastSongs = [];
         this.totalTime = this.provider.get('me', 'data.totalTime', 0);
         this.totalSongsPlayed = this.provider.get('me', 'data.totalSongs', 0);
         Server.setProvider(this.provider);
@@ -109,10 +111,8 @@ export default class LofiClient extends AkairoClient ***REMOVED***
         this.broadcast.play(url);
     ***REMOVED***
 
-    broadcastMessage(msg: string | MessageEmbed): void ***REMOVED***
-        this.servers.forEach(server => ***REMOVED***
-            server.sendNotification(msg);
-        ***REMOVED***);
+    foreachServer(handler: (Server) => void): void ***REMOVED***
+        this.servers.forEach(server => handler(server));
     ***REMOVED***
 
     getServer(id: Snowflake): Server ***REMOVED***
@@ -139,10 +139,6 @@ export default class LofiClient extends AkairoClient ***REMOVED***
         return this.songListener;
     ***REMOVED***
 
-    incrementSongsPlayed(): void ***REMOVED***
-        this.songsPlayed++;
-    ***REMOVED***
-
     getSongsPlayed(): number ***REMOVED***
         return this.songsPlayed;
     ***REMOVED***
@@ -165,5 +161,22 @@ export default class LofiClient extends AkairoClient ***REMOVED***
 
     getBroadcast(): VoiceBroadcast ***REMOVED***
         return this.broadcast;
+    ***REMOVED***
+
+    pushLastSong(): void ***REMOVED***
+        this.lastSongs.unshift(this.songListener.getLastSong());
+        this.songsPlayed++;
+
+        while (this.lastSongs.length > MAX_LAST_SONGS) ***REMOVED***
+            this.lastSongs.pop();
+        ***REMOVED***
+    ***REMOVED***
+
+    getLastSongs(): string ***REMOVED***
+        return this.lastSongs.reduce((prev, current, index) => index + '. ' + prev + current + '\n', '');
+    ***REMOVED***
+
+    getCommandHandler(): CommandHandler ***REMOVED***
+        return this.commandHandler;
     ***REMOVED***
 ***REMOVED***

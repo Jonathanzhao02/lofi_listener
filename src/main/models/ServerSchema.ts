@@ -22,6 +22,10 @@ const ServerSchema = new Schema(
             notificationChannel: ***REMOVED***
                 type: String,
                 default: ''
+            ***REMOVED***,
+            useGifs: ***REMOVED***
+                type: Boolean,
+                default: true
             ***REMOVED***
         ***REMOVED***,
         data: ***REMOVED***
@@ -45,7 +49,8 @@ const ServerSchema = new Schema(
 export interface ServerSettings ***REMOVED***
     prefix?: string,
     notificationsOn?: boolean,
-    notificationChannel?: string
+    notificationChannel?: string,
+    useGifs?: boolean
 ***REMOVED***
 
 export interface ServerData ***REMOVED***

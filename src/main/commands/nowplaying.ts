@@ -10,17 +10,25 @@ export default class NowPlayingCommand extends Command ***REMOVED***
            aliases: ['nowplaying', 'np'],
            description: 'Get the currently playing song.',
            channel: 'guild',
+           clientPermissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
            cooldown: 5000
         ***REMOVED***);
     ***REMOVED***
 
     exec(message: Message): void ***REMOVED***
-        message.channel.send(
-            new MessageEmbed()
-                .setColor('#66ccff')
-                .setTitle('▶️ Currently Playing')
-                .attachFiles(['resources/latest.gif'])
-                .setDescription(this.client.getSongListener().getCurrentSong())
-        );
+        const embed = new MessageEmbed()
+            .setColor('#66ccff')
+            .setTitle('▶️ Now Playing')
+            .setDescription(this.client.getSongListener().getCurrentSong());
+
+        const server = this.client.getServer(message.guild.id);
+
+        if (server.getUseGifs()) ***REMOVED***
+            embed.attachFiles(['resources/latest.gif']);
+        ***REMOVED*** else ***REMOVED***
+            embed.attachFiles(['resources/latest.jpg']);
+        ***REMOVED***
+
+        message.channel.send(embed);
     ***REMOVED***
 ***REMOVED***

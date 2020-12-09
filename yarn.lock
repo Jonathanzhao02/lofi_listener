@@ -1109,7 +1109,7 @@ hosted-git-info@^2.1.4:
 
 html-entities@^1.3.1:
   version "1.3.1"
-  resolved "https://registry.yarnpkg.com/html-entities/-/html-entities-1.3.1.tgz"
+  resolved "https://registry.yarnpkg.com/html-entities/-/html-entities-1.3.1.tgz#fb9a1a4b5b14c5daba82d3e34c6ae4fe701a0e44"
   integrity sha512-rhE/4Z3hIhzHAUKbW8jVcCyuT5oJCXXqhN/6mXXVCpzTmvJnoH2HL/bt3EZ6p55jbFJBeAe1ZNpL5BugLujxNA==
 
 iconv-lite@^0.4.4:
@@ -1375,7 +1375,7 @@ lru-cache@^6.0.0:
 
 m3u8stream@^0.8.3:
   version "0.8.3"
-  resolved "https://registry.yarnpkg.com/m3u8stream/-/m3u8stream-0.8.3.tgz"
+  resolved "https://registry.yarnpkg.com/m3u8stream/-/m3u8stream-0.8.3.tgz#c4624e92b4240eb356d040c4a5e155586cf58108"
   integrity sha512-0nAcdrF8YJKUkb6PzWdvGftTPyCVWgoiot1AkNVbPKTeIGsWs6DrOjifrJ0Zi8WQfQmD2SuVCjkYIOip12igng==
   dependencies:
     miniget "^4.0.0"
@@ -1413,7 +1413,7 @@ mime-types@^2.1.12:
 
 miniget@^4.0.0:
   version "4.1.0"
-  resolved "https://registry.yarnpkg.com/miniget/-/miniget-4.1.0.tgz"
+  resolved "https://registry.yarnpkg.com/miniget/-/miniget-4.1.0.tgz#018cc1180d2fe4d45ed735ac6bd2ab7224e8bceb"
   integrity sha512-kzhrNv5L7LlomwGmPGQsLQ2PnT1LeJJWfB0wNFGyv426gEM1gsfziBQmfkr6XOBA8EusZg9nowlNT5CbuKTjZg==
 
 minimatch@^3.0.4:
@@ -1980,7 +1980,7 @@ saslprep@^1.0.0:
 
 sax@^1.1.3, sax@^1.2.4:
   version "1.2.4"
-  resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz"
+  resolved "https://registry.yarnpkg.com/sax/-/sax-1.2.4.tgz#2816234e2378bddc4e5354fab5caa895df7100d9"
   integrity sha512-NqVDv9TpANUjFm0N8uM5GxL36UgKi9/atZw+x7YFnQ8ckwFGKrl4xX4yWtrey3UJm5nP1kUbnYgLopqWNSRhWw==
 
 "semver@2 || 3 || 4 || 5", semver@^5.1.0:
@@ -2395,9 +2395,9 @@ yallist@^4.0.0:
   integrity sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==
 
 ytdl-core@^4.1.2:
-  version "4.1.2"
-  resolved "https://registry.yarnpkg.com/ytdl-core/-/ytdl-core-4.1.2.tgz#ae94258202f3aaf557ef9c542f3f5bbc6a62b972"
-  integrity sha512-eQMM6HF/Ddh2/n+6sheLyhWR4qvt3oYQyZqJ54X9vqUcIA2FzmN2YpP1ioSuJj0xrCPhk0fnXHu2EGrRvEf/Ig==
+  version "4.1.4"
+  resolved "https://registry.yarnpkg.com/ytdl-core/-/ytdl-core-4.1.4.tgz#214c56306b53b5c320ea2b9b2c62315a4da4e1ae"
+  integrity sha512-f9M2ctrQNH9/X+jOZ/4iA4h6DvNcyuJ+fDvacheeaxtV7sX13qaNmQgNAe7UeTlJWh7Dn3RHQ6imqJJh5beGQg==
   dependencies:
     html-entities "^1.3.1"
     m3u8stream "^0.8.3"

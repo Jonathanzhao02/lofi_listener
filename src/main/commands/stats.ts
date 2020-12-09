@@ -11,6 +11,7 @@ export default class StatsCommand extends Command ***REMOVED***
            aliases: ['stats', 'uptime'],
            description: 'Displays stats about the bot.',
            channel: 'guild',
+           clientPermissions: ['SEND_MESSAGES'],
            cooldown: 1000
         ***REMOVED***);
     ***REMOVED***

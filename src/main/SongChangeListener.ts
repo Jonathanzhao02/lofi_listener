@@ -116,7 +116,6 @@ export default class SongChangeListener extends EventEmitter ***REMOVED***
     init(): void ***REMOVED***
         extractLatestText(this.url).then(song => ***REMOVED***
             this.currentSong = song;
-            this.lastSong = 'None';
             this.songsPlayed = 0;
             extractLatestGif(this.url);
             this.processId = setInterval(this.loop.bind(this), 5000);
