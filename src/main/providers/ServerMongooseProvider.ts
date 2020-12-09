@@ -1,5 +1,5 @@
 import { Provider } from 'discord-akairo';
-import { Model } from 'mongoose';
+import { Model, Query } from 'mongoose';
 import { ServerDocument } from '../models/ServerSchema';
 import { traverseSet, traverseGet, traverseDelete } from '../util/traverse';
 
@@ -63,5 +63,11 @@ export default class ServerMongooseProvider extends Provider {
         }
 
         return obj;
+    }
+
+    async getHighest(field: string, limit: number): Promise<ServerDocument[]> {
+        const filter = {};
+        filter[field] = -1;
+        return await this.model.find().where('id').ne('me').sort(filter).limit(limit);
     }
 }

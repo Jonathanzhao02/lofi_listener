@@ -4,12 +4,13 @@ import mongoose from 'mongoose';
 import { EventEmitter } from 'events';
 import SongChangeListener from './SongChangeListener';
 import Server from './Server';
-import ServerSchema from './models/ServerSchema';
+import ServerSchema, { ServerDocument } from './models/ServerSchema';
 import ServerMongooseProvider from './providers/ServerMongooseProvider';
 
-const { DB_URL, STATS_SAVE_INTERVAL, BOT_PREFIX, MAX_LAST_SONGS } = require('../config.json');
+const { DB_URL, STATS_SAVE_INTERVAL, LEADERBOARD_UPDATE_INTERVAL, BOT_PREFIX, MAX_LAST_SONGS } = require('../config.json');
 
 export default class LofiClient extends AkairoClient {
+    private static singleton: LofiClient;
     private commandHandler: CommandHandler;
     private inhibitorHandler: InhibitorHandler;
     private listenerHandler: ListenerHandler;
@@ -21,7 +22,13 @@ export default class LofiClient extends AkairoClient {
     private songsPlayed: number;
     private totalSongsPlayed: number;
     private lastSongs: string[];
+    private timeLeaderboard: ServerDocument[];
+    private songLeaderboard: ServerDocument[];
     readonly provider: ServerMongooseProvider;
+
+    static getSingleton(): LofiClient {
+        return this.singleton;
+    }
 
     constructor() {
         super(
@@ -33,6 +40,12 @@ export default class LofiClient extends AkairoClient {
                 messageEditHistoryMaxSize: 0
             }
         );
+
+        if (!LofiClient.singleton) {
+            LofiClient.singleton = this;
+        } else {
+            throw Error('LofiClient already instantiated!');
+        }
 
         this.commandHandler = new CommandHandler(this, {
             directory: './build/commands/',
@@ -81,6 +94,11 @@ export default class LofiClient extends AkairoClient {
         }
     }
 
+    async updateLeaderboard(): Promise<void> {
+        this.timeLeaderboard = await this.provider.getHighest('data.totalTime', 5);
+        this.songLeaderboard = await this.provider.getHighest('data.totalSongs', 5);
+    }
+
     async login(token: string): Promise<string> {
         await mongoose.connect(DB_URL, {
             useNewUrlParser: true,
@@ -93,7 +111,9 @@ export default class LofiClient extends AkairoClient {
         this.totalTime = this.provider.get('me', 'data.totalTime', 0);
         this.totalSongsPlayed = this.provider.get('me', 'data.totalSongs', 0);
         Server.setProvider(this.provider);
+        await this.updateLeaderboard();
         this.setInterval(this.saveStats.bind(this), STATS_SAVE_INTERVAL);
+        this.setInterval(this.updateLeaderboard.bind(this), LEADERBOARD_UPDATE_INTERVAL);
         return super.login(token);
     }
 
@@ -178,5 +198,13 @@ export default class LofiClient extends AkairoClient {
 
     getCommandHandler(): CommandHandler {
         return this.commandHandler;
+    }
+
+    getSongLeaderboard(): ServerDocument[] {
+        return this.songLeaderboard;
+    }
+
+    getTimeLeaderboard(): ServerDocument[] {
+        return this.timeLeaderboard;
     }
 }

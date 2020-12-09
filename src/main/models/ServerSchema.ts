@@ -1,4 +1,5 @@
 import mongoose, { Document } from 'mongoose';
+import LofiClient from '../LofiClient';
 const { BOT_PREFIX } = require('../../config.json');
 const Schema = mongoose.Schema;
 

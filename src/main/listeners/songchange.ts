@@ -17,8 +17,6 @@ export default class SongChangeListener extends Listener {
         this.client.pushLastSong();
 
         this.client.foreachServer((server: Server): void => {
-            server.incrementSongsPlayed();
-
             if (server.getNotificationsOn() && server.getConnected()) {
                 const cmdHandler = this.client.getCommandHandler();
                 cmdHandler.runCommand(
@@ -30,6 +28,7 @@ export default class SongChangeListener extends Listener {
                     cmdHandler.findCommand('nowplaying'),
                     null
                 );
+                server.incrementSongsPlayed();
             }
         });
     }
