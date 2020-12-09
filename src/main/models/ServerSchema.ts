@@ -1,4 +1,5 @@
 import mongoose, ***REMOVED*** Document ***REMOVED*** from 'mongoose';
+import LofiClient from '../LofiClient';
 const ***REMOVED*** BOT_PREFIX ***REMOVED*** = require('../../config.json');
 const Schema = mongoose.Schema;
 

@@ -1,5 +1,5 @@
 import ***REMOVED*** Provider ***REMOVED*** from 'discord-akairo';
-import ***REMOVED*** Model ***REMOVED*** from 'mongoose';
+import ***REMOVED*** Model, Query ***REMOVED*** from 'mongoose';
 import ***REMOVED*** ServerDocument ***REMOVED*** from '../models/ServerSchema';
 import ***REMOVED*** traverseSet, traverseGet, traverseDelete ***REMOVED*** from '../util/traverse';
 
@@ -63,5 +63,11 @@ export default class ServerMongooseProvider extends Provider ***REMOVED***
         ***REMOVED***
 
         return obj;
+    ***REMOVED***
+
+    async getHighest(field: string, limit: number): Promise<ServerDocument[]> ***REMOVED***
+        const filter = ***REMOVED******REMOVED***;
+        filter[field] = -1;
+        return await this.model.find().where('id').ne('me').sort(filter).limit(limit);
     ***REMOVED***
 ***REMOVED***
