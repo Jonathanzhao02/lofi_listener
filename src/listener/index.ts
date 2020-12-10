@@ -137,9 +137,9 @@ async function main(): Promise<void> ***REMOVED***
     changeListener.init();
 
     changeListener.on('change', (current) => ***REMOVED***
-        client.set('current_song', current, ***REMOVED*** expires: 10 ***REMOVED***);
-        client.set('latest.jpg', fs.readFileSync('resources/latest.jpg'), ***REMOVED*** expires: 10 ***REMOVED***);
-        client.set('latest.gif', fs.readFileSync('resources/latest.gif'), ***REMOVED*** expires: 10 ***REMOVED***);
+        client.set('current_song', current, ***REMOVED*** expires: 30 ***REMOVED***);
+        client.set('latest.jpg', fs.readFileSync('resources/latest.jpg'), ***REMOVED*** expires: 30 ***REMOVED***);
+        client.set('latest.gif', fs.readFileSync('resources/latest.gif'), ***REMOVED*** expires: 30 ***REMOVED***);
     ***REMOVED***);
 
     process.on('SIGINT', () => ***REMOVED***
