@@ -57,7 +57,7 @@ function isValidUrl(url: string): boolean ***REMOVED***
 
 function extractLatestGif(url: string): Promise<boolean> ***REMOVED***
     return new Promise<boolean>((resolve) => ***REMOVED***
-        exec(`ffmpeg -i $***REMOVED***url***REMOVED*** -vframes 30 -vf fps=15,scale=960:-1,select='not(mod(n\\,3))' -y resources/latest.gif`, (err, stdout, stderr) => ***REMOVED***
+        exec(`ffmpeg -i $***REMOVED***url***REMOVED*** -hide_banner -loglevel fatal -vframes 30 -vf fps=15,scale=960:-1,select='not(mod(n\\,3))' -y resources/latest.gif`, (err, stdout, stderr) => ***REMOVED***
             if (err || stderr) ***REMOVED***
                 console.log(`err: $***REMOVED***err ? err : stderr***REMOVED***`);
                 resolve(false);
@@ -70,7 +70,7 @@ function extractLatestGif(url: string): Promise<boolean> ***REMOVED***
 
 function extractLatestFrame(url: string): Promise<boolean> ***REMOVED***
     return new Promise<boolean>((resolve) => ***REMOVED***
-        exec(`ffmpeg -i $***REMOVED***url***REMOVED*** -vframes 1 -y resources/latest.jpg`, (err, stdout, stderr) => ***REMOVED***
+        exec(`ffmpeg -i $***REMOVED***url***REMOVED*** -hide_banner -loglevel fatal -vframes 1 -y resources/latest.jpg`, (err, stdout, stderr) => ***REMOVED***
             if (err || stderr) ***REMOVED***
                 console.log(`err: $***REMOVED***err ? err : stderr***REMOVED***`);
                 resolve(false);
@@ -115,6 +115,7 @@ export default class SongChangeListener extends EventEmitter ***REMOVED***
     ***REMOVED***
 
     init(): void ***REMOVED***
+        if (!fs.existsSync('resources')) fs.mkdirSync('resources');
         extractLatestText(this.url).then(song => ***REMOVED***
             this.currentSong = song;
             this.songsPlayed = 0;
