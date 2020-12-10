@@ -7,7 +7,8 @@ import Server from './Server';
 import ServerSchema, ***REMOVED*** ServerDocument ***REMOVED*** from './models/ServerSchema';
 import ServerMongooseProvider from './providers/ServerMongooseProvider';
 
-const ***REMOVED*** DB_URL, STATS_SAVE_INTERVAL, LEADERBOARD_UPDATE_INTERVAL, BOT_PREFIX, MAX_LAST_SONGS ***REMOVED*** = require('../config.json');
+const ***REMOVED*** DB_URL, STATS_SAVE_INTERVAL, LEADERBOARD_UPDATE_INTERVAL, BOT_PREFIX, MAX_LEADERBOARD_POSITIONS, MAX_LAST_SONGS ***REMOVED*** = require('../config.json');
+const isDevelopment = process.env.NODE_ENV.valueOf() !== 'production';
 
 export default class LofiClient extends AkairoClient ***REMOVED***
     private static singleton: LofiClient;
@@ -95,12 +96,12 @@ export default class LofiClient extends AkairoClient ***REMOVED***
     ***REMOVED***
 
     async updateLeaderboard(): Promise<void> ***REMOVED***
-        this.timeLeaderboard = await this.provider.getHighest('data.totalTime', 5);
-        this.songLeaderboard = await this.provider.getHighest('data.totalSongs', 5);
+        this.timeLeaderboard = await this.provider.getHighest('data.totalTime', MAX_LEADERBOARD_POSITIONS);
+        this.songLeaderboard = await this.provider.getHighest('data.totalSongs', MAX_LEADERBOARD_POSITIONS);
     ***REMOVED***
 
     async login(token: string): Promise<string> ***REMOVED***
-        await mongoose.connect(DB_URL, ***REMOVED***
+        await mongoose.connect(isDevelopment? DB_URL.replace('<dbname>', 'test') : DB_URL.replace('<dbname>', 'production'), ***REMOVED***
             useNewUrlParser: true,
             useUnifiedTopology: true,
             useFindAndModify: false,
