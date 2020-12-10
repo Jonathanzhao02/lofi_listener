@@ -1,11 +1,10 @@
 import memjs from 'memjs';
-
-// for gifs/jpgs, can use fs.readFileSync() and fs.writeFileSync() to serialize and deserialize
-
 import ***REMOVED*** exec ***REMOVED*** from 'child_process';
 import ***REMOVED*** EventEmitter ***REMOVED*** from 'events';
 import ***REMOVED*** URL ***REMOVED*** from 'url';
 import * as fs from 'fs';
+
+// for gifs/jpgs, can use fs.readFileSync() and fs.writeFileSync() to serialize and deserialize
 
 const ***REMOVED*** MEMCACHIER_USERNAME, MEMCACHIER_PASSWORD, MEMCACHIER_SERVERS ***REMOVED*** = require('../../config.json');
 
@@ -105,9 +104,10 @@ export default class SongChangeListener extends EventEmitter ***REMOVED***
         if (!fs.existsSync('resources')) fs.mkdirSync('resources');
         extractLatestText(this.url).then(song => ***REMOVED***
             this.currentSong = song;
-            this.emit('change', this.currentSong);
-            extractLatestGif(this.url);
-            this.processId = setInterval(this.loop.bind(this), 5000);
+            extractLatestGif(this.url).then(hasSavedGif => ***REMOVED***
+                this.emit('change', this.currentSong);
+                this.processId = setInterval(this.loop.bind(this), 5000);
+            ***REMOVED***);
         ***REMOVED***);
     ***REMOVED***
 
@@ -138,6 +138,8 @@ async function main(): Promise<void> ***REMOVED***
 
     changeListener.on('change', (current) => ***REMOVED***
         client.set('current_song', current, ***REMOVED*** expires: 10 ***REMOVED***);
+        client.set('latest.jpg', fs.readFileSync('resources/latest.jpg'), ***REMOVED*** expires: 10 ***REMOVED***);
+        client.set('latest.gif', fs.readFileSync('resources/latest.gif'), ***REMOVED*** expires: 10 ***REMOVED***);
     ***REMOVED***);
 
     process.on('SIGINT', () => ***REMOVED***

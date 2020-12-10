@@ -76,23 +76,28 @@ export default class MemSongListener extends EventEmitter ***REMOVED***
     ***REMOVED***
 
     init(): void ***REMOVED***
+        if (!fs.existsSync('resources')) fs.mkdirSync('resources');
         this.client.set('stream_url', this.url, ***REMOVED*** expire: 30 ***REMOVED***).then(() => ***REMOVED***
             this.songsPlayed = 0;
-            checkValue(this.client, 'current_song').then(song => ***REMOVED***
+            checkValue(this.client, 'current_song').then(async song => ***REMOVED***
                 this.currentSong = song.toString();
+                fs.writeFileSync('resources/latest.gif', await checkValue(this.client, 'latest.gif'));
+                fs.writeFileSync('resources/latest.jpg', await checkValue(this.client, 'latest.jpg'));
                 this.processId = setInterval(this.loop.bind(this), 5000);
             ***REMOVED***);
         ***REMOVED***);
     ***REMOVED***
 
     loop(): void ***REMOVED***
-        checkValue(this.client, 'current_song').then(song => ***REMOVED***
+        checkValue(this.client, 'current_song').then(async song => ***REMOVED***
             if (compareLevenshtein(song.toString(), this.currentSong) > CHANGE_THRESHOLD) ***REMOVED***
                 this.lastSong = this.currentSong;
                 this.currentSong = song.toString();
                 this.songsPlayed++;
                 fs.copyFileSync('resources/latest.gif', 'resources/latest_old.gif');
-                fs.copyFileSync('resources/latest_backup.jpg', 'resources/latest_old.jpg');
+                fs.copyFileSync('resources/latest.jpg', 'resources/latest_old.jpg');
+                fs.writeFileSync('resources/latest.gif', await checkValue(this.client, 'latest.gif'));
+                fs.writeFileSync('resources/latest.jpg', await checkValue(this.client, 'latest.jpg'));
                 this.emit('change', this.currentSong, this.lastSong);
             ***REMOVED***
         ***REMOVED***);
