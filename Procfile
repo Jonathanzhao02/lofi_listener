@@ -1,1 +1,1 @@
-web: yarn production
+worker: yarn production
