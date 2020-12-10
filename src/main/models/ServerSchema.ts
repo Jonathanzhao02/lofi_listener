@@ -1,5 +1,5 @@
 import mongoose, ***REMOVED*** Document ***REMOVED*** from 'mongoose';
-const ***REMOVED*** BOT_PREFIX ***REMOVED*** = require('../../config.json');
+const ***REMOVED*** BOT_PREFIX ***REMOVED*** = require('../../../config.json');
 const Schema = mongoose.Schema;
 
 const ServerSchema = new Schema(

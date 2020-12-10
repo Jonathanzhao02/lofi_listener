@@ -2,7 +2,7 @@ import ***REMOVED*** Command ***REMOVED*** from 'discord-akairo';
 import ***REMOVED*** Message ***REMOVED*** from 'discord.js';
 import LofiClient from '../LofiClient';
 
-const ***REMOVED*** BOT_PREFIX ***REMOVED*** = require('../../config.json');
+const ***REMOVED*** BOT_PREFIX ***REMOVED*** = require('../../../config.json');
 
 export default class PingCommand extends Command ***REMOVED***
     client: LofiClient;

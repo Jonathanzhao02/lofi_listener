@@ -8,7 +8,7 @@ export default class LastPlayedCommand extends Command ***REMOVED***
     constructor() ***REMOVED***
         super('lastplayed', ***REMOVED***
            aliases: ['lastplayed', 'lastplaying', 'lp'],
-           description: 'Get the last played song.',
+           description: 'Get the last played songs.',
            channel: 'guild',
            clientPermissions: ['SEND_MESSAGES', 'ATTACH_FILES'],
            cooldown: 5000

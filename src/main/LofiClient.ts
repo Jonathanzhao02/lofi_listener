@@ -2,12 +2,12 @@ import ***REMOVED*** AkairoClient, CommandHandler, InhibitorHandler, ListenerHan
 import ***REMOVED*** VoiceBroadcast, Snowflake ***REMOVED*** from 'discord.js';
 import mongoose from 'mongoose';
 import ***REMOVED*** EventEmitter ***REMOVED*** from 'events';
-import SongChangeListener from './SongChangeListener';
+import MemSongListener from './MemSongListener';
 import Server from './Server';
 import ServerSchema, ***REMOVED*** ServerDocument ***REMOVED*** from './models/ServerSchema';
 import ServerMongooseProvider from './providers/ServerMongooseProvider';
 
-const ***REMOVED*** DB_URL, STATS_SAVE_INTERVAL, LEADERBOARD_UPDATE_INTERVAL, BOT_PREFIX, MAX_LEADERBOARD_POSITIONS, MAX_LAST_SONGS ***REMOVED*** = require('../config.json');
+const ***REMOVED*** DB_URL, STATS_SAVE_INTERVAL, LEADERBOARD_UPDATE_INTERVAL, BOT_PREFIX, MAX_LEADERBOARD_POSITIONS, MAX_LAST_SONGS ***REMOVED*** = require('../../config.json');
 const isDevelopment = process.env.NODE_ENV.valueOf() !== 'production';
 
 export default class LofiClient extends AkairoClient ***REMOVED***
@@ -19,7 +19,7 @@ export default class LofiClient extends AkairoClient ***REMOVED***
     private servers: Map<Snowflake, Server>;
     private startTime: number;
     private totalTime: number;
-    private songListener: SongChangeListener;
+    private songListener: MemSongListener;
     private songsPlayed: number;
     private totalSongsPlayed: number;
     private lastSongs: string[];
@@ -49,7 +49,7 @@ export default class LofiClient extends AkairoClient ***REMOVED***
         ***REMOVED***
 
         this.commandHandler = new CommandHandler(this, ***REMOVED***
-            directory: './build/commands/',
+            directory: './build/main/commands/',
             prefix: async (message): Promise<string> => ***REMOVED***
                 if (!message.guild) return BOT_PREFIX;
 
@@ -64,11 +64,11 @@ export default class LofiClient extends AkairoClient ***REMOVED***
         ***REMOVED***);
 
         this.inhibitorHandler = new InhibitorHandler(this, ***REMOVED***
-            directory: './build/inhibitors/'
+            directory: './build/main/inhibitors/'
         ***REMOVED***);
 
         this.listenerHandler = new ListenerHandler(this, ***REMOVED***
-            directory: './build/listeners'
+            directory: './build/main/listeners'
         ***REMOVED***);
 
         this.broadcast = this.voice.createBroadcast();
@@ -152,11 +152,11 @@ export default class LofiClient extends AkairoClient ***REMOVED***
         return this.servers.delete(id);
     ***REMOVED***
 
-    setSongListener(listener: SongChangeListener): void ***REMOVED***
+    setSongListener(listener: MemSongListener): void ***REMOVED***
         this.songListener = listener;
     ***REMOVED***
 
-    getSongListener(): SongChangeListener ***REMOVED***
+    getSongListener(): MemSongListener ***REMOVED***
         return this.songListener;
     ***REMOVED***
 
@@ -194,7 +194,7 @@ export default class LofiClient extends AkairoClient ***REMOVED***
     ***REMOVED***
 
     getLastSongs(): string ***REMOVED***
-        return this.lastSongs.reduce((prev, current, index) => index + '. ' + prev + current + '\n', '');
+        return this.lastSongs.reduce((prev, current, index) => prev + (index + 1) + '. ' + current + '\n', '');
     ***REMOVED***
 
     getCommandHandler(): CommandHandler ***REMOVED***

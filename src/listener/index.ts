@@ -1,40 +1,13 @@
+import memjs from 'memjs';
+
+// for gifs/jpgs, can use fs.readFileSync() and fs.writeFileSync() to serialize and deserialize
+
 import ***REMOVED*** exec ***REMOVED*** from 'child_process';
-import ***REMOVED*** exception ***REMOVED*** from 'console';
 import ***REMOVED*** EventEmitter ***REMOVED*** from 'events';
 import ***REMOVED*** URL ***REMOVED*** from 'url';
 import * as fs from 'fs';
 
-const ***REMOVED*** CHANGE_THRESHOLD ***REMOVED*** = require('../config.json');
-
-function compareLevenshtein(a: string, b: string): number ***REMOVED***
-    if (!a || !b) return a?.length || b?.length;
-    if(a.length == 0) return b.length; 
-    if(b.length == 0) return a.length; 
-
-    let matrix = [];
-
-    for(let i = 0; i <= b.length; i++)***REMOVED***
-        matrix[i] = [i];
-    ***REMOVED***
-
-    for(let j = 0; j <= a.length; j++)***REMOVED***
-        matrix[0][j] = j;
-    ***REMOVED***
-
-    for(let i = 1; i <= b.length; i++)***REMOVED***
-        for(let j = 1; j <= a.length; j++)***REMOVED***
-            if(b.charAt(i-1) == a.charAt(j-1))***REMOVED***
-                matrix[i][j] = matrix[i-1][j-1];
-            ***REMOVED*** else ***REMOVED***
-                matrix[i][j] = Math.min(matrix[i-1][j-1] + 1, // substitution
-                               Math.min(matrix[i][j-1] + 1, // insertion
-                               matrix[i-1][j] + 1)); // deletion
-            ***REMOVED***
-        ***REMOVED***
-    ***REMOVED***
-
-    return matrix[b.length][a.length];
-***REMOVED***
+const ***REMOVED*** MEMCACHIER_USERNAME, MEMCACHIER_PASSWORD, MEMCACHIER_SERVERS ***REMOVED*** = require('../../config.json');
 
 function extractSong(text: string): string ***REMOVED***
     const lines = text.split('\n');
@@ -100,25 +73,39 @@ function extractLatestText(url: string): Promise<string> ***REMOVED***
     ***REMOVED***);
 ***REMOVED***
 
+function checkValue(client, name: string, timeout = 10000, interval = 100): Promise<Buffer> ***REMOVED***
+    return new Promise((resolve, reject) => ***REMOVED***
+        const startTime = Date.now();
+        const check = function(val: ***REMOVED*** value: Buffer, flags: Buffer ***REMOVED***) ***REMOVED***
+            if (val?.value) ***REMOVED***
+                resolve(val.value);
+            ***REMOVED*** else ***REMOVED***
+                if (Date.now() - startTime > timeout) reject('Timed out');
+                else setTimeout(() => client.get(name).then(check), interval);
+            ***REMOVED***
+        ***REMOVED***;
+
+        client.get(name).then(check);
+    ***REMOVED***);
+***REMOVED***
+
 export default class SongChangeListener extends EventEmitter ***REMOVED***
     private url: string;
     private processId: ReturnType<typeof setTimeout>
 
     private currentSong: string;
-    private lastSong: string;
-    private songsPlayed: number;
 
     constructor(url: string) ***REMOVED***
         super();
         if (isValidUrl(url)) this.url = url;
-        else throw exception('Invalid URL supplied to SongChangeListener!');
+        else throw Error('Invalid URL supplied to SongChangeListener!');
     ***REMOVED***
 
     init(): void ***REMOVED***
         if (!fs.existsSync('resources')) fs.mkdirSync('resources');
         extractLatestText(this.url).then(song => ***REMOVED***
             this.currentSong = song;
-            this.songsPlayed = 0;
+            this.emit('change', this.currentSong);
             extractLatestGif(this.url);
             this.processId = setInterval(this.loop.bind(this), 5000);
         ***REMOVED***);
@@ -127,32 +114,51 @@ export default class SongChangeListener extends EventEmitter ***REMOVED***
     loop(): void ***REMOVED***
         fs.copyFileSync('resources/latest.jpg', 'resources/latest_backup.jpg');
         extractLatestText(this.url).then(song => ***REMOVED***
-            if (song?.valueOf() !== this.currentSong?.valueOf() && compareLevenshtein(song, this.currentSong) > CHANGE_THRESHOLD) ***REMOVED***
-                this.lastSong = this.currentSong;
-                this.currentSong = song;
-                this.songsPlayed++;
-                fs.copyFileSync('resources/latest.gif', 'resources/latest_old.gif');
-                fs.copyFileSync('resources/latest_backup.jpg', 'resources/latest_old.jpg');
-                extractLatestGif(this.url).then(hasSavedGif => ***REMOVED***
-                    this.emit('change', this.currentSong, this.lastSong);
-                ***REMOVED***);
-            ***REMOVED***
+            if (!song) return;
+            this.currentSong = song;
+            extractLatestGif(this.url).then(hasSavedGif => ***REMOVED***
+                this.emit('change', this.currentSong);
+            ***REMOVED***);
         ***REMOVED***);
     ***REMOVED***
 
     end(): void ***REMOVED***
         clearInterval(this.processId);
     ***REMOVED***
-
-    getCurrentSong(): string ***REMOVED***
-        return this.currentSong;
-    ***REMOVED***
-
-    getLastSong(): string ***REMOVED***
-        return this.lastSong;
-    ***REMOVED***
-
-    getSongsPlayed(): number ***REMOVED***
-        return this.songsPlayed;
-    ***REMOVED***
 ***REMOVED***
+
+async function main(): Promise<void> ***REMOVED***
+    const client = memjs.Client.create(MEMCACHIER_SERVERS, ***REMOVED***
+        username: MEMCACHIER_USERNAME,
+        password: MEMCACHIER_PASSWORD
+    ***REMOVED***);
+    const url = (await checkValue(client, 'stream_url')).toString();
+    const changeListener = new SongChangeListener(url);
+    changeListener.init();
+
+    changeListener.on('change', (current) => ***REMOVED***
+        client.set('current_song', current, ***REMOVED*** expires: 10 ***REMOVED***);
+    ***REMOVED***);
+
+    process.on('SIGINT', () => ***REMOVED***
+        changeListener.end();
+        console.log('Exiting');
+        process.exit(0);
+    ***REMOVED***);
+
+    process.on('uncaughtException', err => ***REMOVED***
+        console.log(err);
+        changeListener.end();
+        console.log('Exiting');
+        process.exit(0);
+    ***REMOVED***);
+
+    process.on('unhandledRejection', err => ***REMOVED***
+        console.log(err);
+        changeListener.end();
+        console.log('Exiting');
+        process.exit(0);
+    ***REMOVED***);
+***REMOVED***
+
+main();
