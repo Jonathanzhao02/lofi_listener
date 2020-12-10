@@ -33,7 +33,7 @@ function compareLevenshtein(a: string, b: string): number ***REMOVED***
     return matrix[b.length][a.length];
 ***REMOVED***
 
-function checkValue(client, name: string, timeout = 5000, interval = 100): Promise<Buffer> ***REMOVED***
+function checkValue(client, name: string, timeout = 10000, interval = 100): Promise<Buffer> ***REMOVED***
     return new Promise((resolve, reject) => ***REMOVED***
         const startTime = Date.now();
         const check = function(val: ***REMOVED*** value: Buffer, flags: Buffer ***REMOVED***) ***REMOVED***
