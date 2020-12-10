@@ -116,12 +116,15 @@ export default class SongChangeListener extends EventEmitter ***REMOVED***
 
     init(): void ***REMOVED***
         if (!fs.existsSync('resources')) fs.mkdirSync('resources');
-        extractLatestText(this.url).then(song => ***REMOVED***
+        this.currentSong = '???';
+        this.lastSong = '???';
+        this.songsPlayed = 0;
+        /*extractLatestText(this.url).then(song => ***REMOVED***
             this.currentSong = song;
             this.songsPlayed = 0;
             extractLatestGif(this.url);
             this.processId = setInterval(this.loop.bind(this), 5000);
-        ***REMOVED***);
+        ***REMOVED***);*/
     ***REMOVED***
 
     loop(): void ***REMOVED***
