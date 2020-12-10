@@ -2,7 +2,7 @@
 .vscode
 node_modules
 *.js
-config.json
 .yarn*
 build
-resources/*
+resources
+temp
