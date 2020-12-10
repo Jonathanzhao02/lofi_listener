@@ -23,8 +23,8 @@
     "standard": "^16.0.3"
   ***REMOVED***,
   "scripts": ***REMOVED***
-    "dev": "tsc && NODE_ENV=development node build/index.js",
-    "production": "tsc && NODE_ENV=production node build/index.js",
+    "dev": "tsc && NODE_ENV=development node --optimize_for_size --max_old_space_size=460 build/index.js",
+    "production": "tsc && NODE_ENV=production node --optimize_for_size --max_old_space_size=460 build/index.js",
     "rebuild": "rm -r build/* && tsc",
     "update": "yarn set version latest",
     "lint": "eslint src/**/*.ts",
