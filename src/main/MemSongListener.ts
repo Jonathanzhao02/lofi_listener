@@ -37,7 +37,6 @@ function checkValue(client, name: string, timeout = 10000, interval = 100): Prom
     return new Promise((resolve, reject) => ***REMOVED***
         const startTime = Date.now();
         const check = function(val: ***REMOVED*** value: Buffer, flags: Buffer ***REMOVED***) ***REMOVED***
-            console.log(val?.value?.toString());
             if (val?.value) ***REMOVED***
                 resolve(val.value);
             ***REMOVED*** else ***REMOVED***
@@ -83,6 +82,8 @@ export default class MemSongListener extends EventEmitter ***REMOVED***
                 this.currentSong = song.toString();
                 fs.writeFileSync('resources/latest.gif', await checkValue(this.client, 'latest.gif'));
                 fs.writeFileSync('resources/latest.jpg', await checkValue(this.client, 'latest.jpg'));
+                fs.copyFileSync('resources/latest.gif', 'resources/latest_old.gif');
+                fs.copyFileSync('resources/latest.jpg', 'resources/latest_old.jpg');
                 this.processId = setInterval(this.loop.bind(this), 5000);
             ***REMOVED***);
         ***REMOVED***);
