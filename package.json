@@ -26,8 +26,8 @@
     "dev": "tsc && NODE_ENV=development node build/index.js",
     "production": "tsc && NODE_ENV=production node build/index.js",
     "rebuild": "rm -r build/* && tsc",
-    "lint": "eslint src/**/*.ts",
     "update": "yarn set version latest",
+    "lint": "eslint src/**/*.ts",
     "db": "mongod -config /usr/local/etc/mongod.conf"
   }
 }
