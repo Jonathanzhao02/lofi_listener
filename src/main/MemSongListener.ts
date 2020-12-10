@@ -33,14 +33,14 @@ function compareLevenshtein(a: string, b: string): number ***REMOVED***
     return matrix[b.length][a.length];
 ***REMOVED***
 
-function checkValue(client, name: string, timeout = 10000, interval = 100): Promise<Buffer> ***REMOVED***
+function checkValue(client, name: string, timeout = 5000, interval = 100): Promise<Buffer> ***REMOVED***
     return new Promise((resolve, reject) => ***REMOVED***
         const startTime = Date.now();
         const check = function(val: ***REMOVED*** value: Buffer, flags: Buffer ***REMOVED***) ***REMOVED***
             if (val?.value) ***REMOVED***
                 resolve(val.value);
             ***REMOVED*** else ***REMOVED***
-                if (Date.now() - startTime > timeout) reject('Timed out');
+                if (Date.now() - startTime > timeout) resolve(null);
                 else setTimeout(() => client.get(name).then(check), interval);
             ***REMOVED***
         ***REMOVED***;
@@ -79,26 +79,35 @@ export default class MemSongListener extends EventEmitter ***REMOVED***
         this.client.set('stream_url', this.url, ***REMOVED*** expire: 30 ***REMOVED***).then(() => ***REMOVED***
             this.songsPlayed = 0;
             checkValue(this.client, 'current_song').then(async song => ***REMOVED***
-                this.currentSong = song.toString();
-                fs.writeFileSync('resources/latest.gif', await checkValue(this.client, 'latest.gif'));
-                fs.writeFileSync('resources/latest.jpg', await checkValue(this.client, 'latest.jpg'));
-                fs.copyFileSync('resources/latest.gif', 'resources/latest_old.gif');
-                fs.copyFileSync('resources/latest.jpg', 'resources/latest_old.jpg');
+                if (song) this.currentSong = song.toString();
+                const gifBuffer = await checkValue(this.client, 'latest.gif');
+                const jpgBuffer = await checkValue(this.client, 'latest.jpg');
+                if (gifBuffer && jpgBuffer) ***REMOVED***
+                    fs.writeFileSync('resources/latest.gif', gifBuffer);
+                    fs.writeFileSync('resources/latest.jpg', jpgBuffer);
+                    fs.copyFileSync('resources/latest.gif', 'resources/latest_old.gif');
+                    fs.copyFileSync('resources/latest.jpg', 'resources/latest_old.jpg');
+                ***REMOVED***
                 this.processId = setInterval(this.loop.bind(this), 5000);
             ***REMOVED***);
         ***REMOVED***);
     ***REMOVED***
 
     loop(): void ***REMOVED***
+        this.client.set('stream_url', this.url, ***REMOVED*** expire: 30 ***REMOVED***);
         checkValue(this.client, 'current_song').then(async song => ***REMOVED***
-            if (compareLevenshtein(song.toString(), this.currentSong) > CHANGE_THRESHOLD) ***REMOVED***
+            if (song && compareLevenshtein(song.toString(), this.currentSong) > CHANGE_THRESHOLD) ***REMOVED***
                 this.lastSong = this.currentSong;
                 this.currentSong = song.toString();
                 this.songsPlayed++;
-                fs.copyFileSync('resources/latest.gif', 'resources/latest_old.gif');
-                fs.copyFileSync('resources/latest.jpg', 'resources/latest_old.jpg');
-                fs.writeFileSync('resources/latest.gif', await checkValue(this.client, 'latest.gif'));
-                fs.writeFileSync('resources/latest.jpg', await checkValue(this.client, 'latest.jpg'));
+                const gifBuffer = await checkValue(this.client, 'latest.gif');
+                const jpgBuffer = await checkValue(this.client, 'latest.jpg');
+                if (gifBuffer && jpgBuffer) ***REMOVED***
+                    fs.copyFileSync('resources/latest.gif', 'resources/latest_old.gif');
+                    fs.copyFileSync('resources/latest.jpg', 'resources/latest_old.jpg');
+                    fs.writeFileSync('resources/latest.gif', gifBuffer);
+                    fs.writeFileSync('resources/latest.jpg', jpgBuffer);
+                ***REMOVED***
                 this.emit('change', this.currentSong, this.lastSong);
             ***REMOVED***
         ***REMOVED***);
