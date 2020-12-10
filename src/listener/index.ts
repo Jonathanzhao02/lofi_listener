@@ -148,12 +148,6 @@ async function main(): Promise<void> ***REMOVED***
         process.exit(0);
     ***REMOVED***);
 
-    process.on('SIGKILL', () => ***REMOVED***
-        changeListener.end();
-        console.log('Exiting');
-        process.exit(0);
-    ***REMOVED***);
-
     process.on('uncaughtException', err => ***REMOVED***
         console.log(err);
         changeListener.end();
