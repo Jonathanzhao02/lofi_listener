@@ -37,6 +37,7 @@ function checkValue(client, name: string, timeout = 10000, interval = 100): Prom
     return new Promise((resolve, reject) => ***REMOVED***
         const startTime = Date.now();
         const check = function(val: ***REMOVED*** value: Buffer, flags: Buffer ***REMOVED***) ***REMOVED***
+            console.log(val?.value?.toString());
             if (val?.value) ***REMOVED***
                 resolve(val.value);
             ***REMOVED*** else ***REMOVED***
