@@ -4,8 +4,6 @@ import ***REMOVED*** EventEmitter ***REMOVED*** from 'events';
 import ***REMOVED*** URL ***REMOVED*** from 'url';
 import * as fs from 'fs';
 
-// for gifs/jpgs, can use fs.readFileSync() and fs.writeFileSync() to serialize and deserialize
-
 const ***REMOVED*** MEMCACHIER_USERNAME, MEMCACHIER_PASSWORD, MEMCACHIER_SERVERS ***REMOVED*** = require('../../config.json');
 
 function extractSong(text: string): string ***REMOVED***
@@ -108,6 +106,8 @@ export default class SongChangeListener extends EventEmitter ***REMOVED***
                 this.emit('change', this.currentSong);
                 this.processId = setInterval(this.loop.bind(this), 5000);
             ***REMOVED***);
+        ***REMOVED***).catch(err => ***REMOVED***
+            console.log(err);
         ***REMOVED***);
     ***REMOVED***
 
@@ -119,6 +119,8 @@ export default class SongChangeListener extends EventEmitter ***REMOVED***
             extractLatestGif(this.url).then(hasSavedGif => ***REMOVED***
                 this.emit('change', this.currentSong);
             ***REMOVED***);
+        ***REMOVED***).catch(err => ***REMOVED***
+            console.log(err);
         ***REMOVED***);
     ***REMOVED***
 
