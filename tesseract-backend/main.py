@@ -25,7 +25,8 @@ thresh = 255 - thresh
 # cv2.imwrite("contours.png", image)
 # cv2.imwrite("processed.png", thresh)
 
-text = pytesseract.image_to_string(thresh)
+custom_oem_psm_config = r'--oem 0 --psm 13'
+text = pytesseract.image_to_string(thresh, lang='eng', config=custom_oem_psm_config)
 print(text)
 
 """image_src = cv2.imread("example.png")

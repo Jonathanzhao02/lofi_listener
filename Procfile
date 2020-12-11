@@ -1,2 +1,2 @@
-worker: yarn devlistener
-bot: yarn dev
+worker: yarn listener
+bot: yarn production
