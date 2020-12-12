@@ -11,10 +11,10 @@ else:
 try:
     CV_THRESH = int(os.environ["CV_THRESH"])
 except:
-    CV_THRESH = 230
+    CV_THRESH = 240
 
 image = cv2.imread(file_path)
-image = image[0:50,250:,:]
+image = image[0:50,:,:]
 
 gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
 thresh = cv2.threshold(gray, CV_THRESH, 255, cv2.THRESH_BINARY)[1]
@@ -31,7 +31,7 @@ thresh = 255 - thresh
 # cv2.imwrite("contours.png", image)
 # cv2.imwrite("processed.png", thresh)
 
-custom_oem_psm_config = r'--oem 0 --psm 7'
+custom_oem_psm_config = r'--oem 0 --psm 7' # --tessdata-dir /Users/mac/Downloads'
 text = pytesseract.image_to_string(thresh, lang='eng', config=custom_oem_psm_config)
 print(text)
 
