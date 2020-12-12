@@ -9,7 +9,7 @@ else:
     raise Error('Not enough arguments!')
 
 try:
-    CV_THRESH = os.environ["CV_THRESH"]
+    CV_THRESH = int(os.environ["CV_THRESH"])
 except:
     CV_THRESH = 230
 
