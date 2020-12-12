@@ -85,8 +85,6 @@ export default class MemSongListener extends EventEmitter ***REMOVED***
                 if (gifBuffer && jpgBuffer) ***REMOVED***
                     fs.writeFileSync('resources/latest.gif', gifBuffer);
                     fs.writeFileSync('resources/latest.jpg', jpgBuffer);
-                    fs.copyFileSync('resources/latest.gif', 'resources/latest_old.gif');
-                    fs.copyFileSync('resources/latest.jpg', 'resources/latest_old.jpg');
                 ***REMOVED***
                 this.processId = setInterval(this.loop.bind(this), 5000);
             ***REMOVED***);
@@ -103,8 +101,8 @@ export default class MemSongListener extends EventEmitter ***REMOVED***
                 const gifBuffer = await checkValue(this.client, 'latest.gif');
                 const jpgBuffer = await checkValue(this.client, 'latest.jpg');
                 if (gifBuffer && jpgBuffer) ***REMOVED***
-                    fs.copyFileSync('resources/latest.gif', 'resources/latest_old.gif');
-                    fs.copyFileSync('resources/latest.jpg', 'resources/latest_old.jpg');
+                    if (fs.existsSync('resources/latest.gif')) fs.copyFileSync('resources/latest.gif', 'resources/latest_old.gif');
+                    if (fs.existsSync('resources/latest.jpg')) fs.copyFileSync('resources/latest.jpg', 'resources/latest_old.jpg');
                     fs.writeFileSync('resources/latest.gif', gifBuffer);
                     fs.writeFileSync('resources/latest.jpg', jpgBuffer);
                 ***REMOVED***

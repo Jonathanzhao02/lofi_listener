@@ -1,6 +1,7 @@
 import ***REMOVED*** Command ***REMOVED*** from 'discord-akairo';
 import ***REMOVED*** Message, MessageEmbed ***REMOVED*** from 'discord.js';
 import LofiClient from '../LofiClient';
+import * as fs from 'fs';
 
 export default class LastPlayedCommand extends Command ***REMOVED***
     client: LofiClient;
@@ -23,9 +24,9 @@ export default class LastPlayedCommand extends Command ***REMOVED***
 
         const server = this.client.getServer(message.guild.id);
 
-        if (server.getUseGifs()) ***REMOVED***
+        if (server.getUseGifs() && fs.existsSync('resources/latest_old.gif')) ***REMOVED***
             embed.attachFiles(['resources/latest_old.gif']);
-        ***REMOVED*** else ***REMOVED***
+        ***REMOVED*** else if (fs.existsSync('resources/latest_old.jpg')) ***REMOVED***
             embed.attachFiles(['resources/latest_old.jpg']);
         ***REMOVED***
 
