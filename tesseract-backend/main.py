@@ -8,10 +8,10 @@ else:
     raise Error('Not enough arguments!')
 
 image = cv2.imread(file_path)
-image = image[0:50,:,:]
+image = image[0:50,250:,:]
 
 gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-thresh = cv2.threshold(gray, 230, 255, cv2.THRESH_BINARY)[1]
+thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)[1]
 thresh = 255 - thresh
 
 # edged = cv2.Canny(thresh, 255, 0)
