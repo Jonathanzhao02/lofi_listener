@@ -24,10 +24,10 @@ export default class NowPlayingCommand extends Command ***REMOVED***
 
         const server = this.client.getServer(message.guild.id);
 
-        if (server.getUseGifs() && fs.existsSync('resources/latest.gif')) ***REMOVED***
-            embed.attachFiles(['resources/latest.gif']);
-        ***REMOVED*** else if (fs.existsSync('resources/latest.jpg')) ***REMOVED***
-            embed.attachFiles(['resources/latest.jpg']);
+        if (server.getUseGifs() && fs.existsSync('temp/latest.gif')) ***REMOVED***
+            embed.attachFiles(['temp/latest.gif']);
+        ***REMOVED*** else if (fs.existsSync('temp/latest.jpg')) ***REMOVED***
+            embed.attachFiles(['temp/latest.jpg']);
         ***REMOVED***
 
         message.channel.send(embed);

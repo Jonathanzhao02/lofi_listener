@@ -75,7 +75,7 @@ export default class MemSongListener extends EventEmitter ***REMOVED***
     ***REMOVED***
 
     init(): void ***REMOVED***
-        if (!fs.existsSync('resources')) fs.mkdirSync('resources');
+        if (!fs.existsSync('temp')) fs.mkdirSync('temp');
         this.client.set('stream_url', this.url, ***REMOVED*** expire: 30 ***REMOVED***).then(() => ***REMOVED***
             this.songsPlayed = 0;
             checkValue(this.client, 'current_song').then(async song => ***REMOVED***
@@ -83,8 +83,8 @@ export default class MemSongListener extends EventEmitter ***REMOVED***
                 const gifBuffer = await checkValue(this.client, 'latest.gif');
                 const jpgBuffer = await checkValue(this.client, 'latest.jpg');
                 if (gifBuffer && jpgBuffer) ***REMOVED***
-                    fs.writeFileSync('resources/latest.gif', gifBuffer);
-                    fs.writeFileSync('resources/latest.jpg', jpgBuffer);
+                    fs.writeFileSync('temp/latest.gif', gifBuffer);
+                    fs.writeFileSync('temp/latest.jpg', jpgBuffer);
                 ***REMOVED***
                 this.processId = setInterval(this.loop.bind(this), 5000);
             ***REMOVED***);
@@ -101,10 +101,10 @@ export default class MemSongListener extends EventEmitter ***REMOVED***
                 const gifBuffer = await checkValue(this.client, 'latest.gif');
                 const jpgBuffer = await checkValue(this.client, 'latest.jpg');
                 if (gifBuffer && jpgBuffer) ***REMOVED***
-                    if (fs.existsSync('resources/latest.gif')) fs.copyFileSync('resources/latest.gif', 'resources/latest_old.gif');
-                    if (fs.existsSync('resources/latest.jpg')) fs.copyFileSync('resources/latest.jpg', 'resources/latest_old.jpg');
-                    fs.writeFileSync('resources/latest.gif', gifBuffer);
-                    fs.writeFileSync('resources/latest.jpg', jpgBuffer);
+                    if (fs.existsSync('temp/latest.gif')) fs.copyFileSync('temp/latest.gif', 'temp/latest_old.gif');
+                    if (fs.existsSync('temp/latest.jpg')) fs.copyFileSync('temp/latest.jpg', 'temp/latest_old.jpg');
+                    fs.writeFileSync('temp/latest.gif', gifBuffer);
+                    fs.writeFileSync('temp/latest.jpg', jpgBuffer);
                 ***REMOVED***
                 this.emit('change', this.currentSong, this.lastSong);
             ***REMOVED***

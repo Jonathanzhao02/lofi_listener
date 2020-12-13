@@ -24,10 +24,10 @@ export default class LastPlayedCommand extends Command ***REMOVED***
 
         const server = this.client.getServer(message.guild.id);
 
-        if (server.getUseGifs() && fs.existsSync('resources/latest_old.gif')) ***REMOVED***
-            embed.attachFiles(['resources/latest_old.gif']);
-        ***REMOVED*** else if (fs.existsSync('resources/latest_old.jpg')) ***REMOVED***
-            embed.attachFiles(['resources/latest_old.jpg']);
+        if (server.getUseGifs() && fs.existsSync('temp/latest_old.gif')) ***REMOVED***
+            embed.attachFiles(['temp/latest_old.gif']);
+        ***REMOVED*** else if (fs.existsSync('temp/latest_old.jpg')) ***REMOVED***
+            embed.attachFiles(['temp/latest_old.jpg']);
         ***REMOVED***
 
         message.channel.send(embed);

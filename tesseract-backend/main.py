@@ -6,7 +6,7 @@ import os
 if len(sys.argv) > 1:
     file_path = sys.argv[1]
 else:
-    raise Error('Not enough arguments!')
+    raise Exception('Not enough arguments!')
 
 try:
     CV_THRESH = int(os.environ["CV_THRESH"])

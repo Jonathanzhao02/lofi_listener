@@ -27,7 +27,7 @@ function isValidUrl(url: string): boolean ***REMOVED***
 
 function extractLatestGif(url: string): Promise<boolean> ***REMOVED***
     return new Promise<boolean>((resolve) => ***REMOVED***
-        exec(`ffmpeg -i $***REMOVED***url***REMOVED*** -hide_banner -loglevel fatal -vframes 30 -vf fps=15,scale=960:-1,select='not(mod(n\\,3))' -y resources/latest.gif`, (err, stdout, stderr) => ***REMOVED***
+        exec(`ffmpeg -i $***REMOVED***url***REMOVED*** -hide_banner -loglevel fatal -vframes 30 -vf fps=15,scale=960:-1,select='not(mod(n\\,3))' -y temp/latest.gif`, (err, stdout, stderr) => ***REMOVED***
             if (err || stderr) ***REMOVED***
                 console.log(`err: $***REMOVED***err ? err : stderr***REMOVED***`);
                 resolve(false);
@@ -40,7 +40,7 @@ function extractLatestGif(url: string): Promise<boolean> ***REMOVED***
 
 function extractLatestFrame(url: string): Promise<boolean> ***REMOVED***
     return new Promise<boolean>((resolve) => ***REMOVED***
-        exec(`ffmpeg -i $***REMOVED***url***REMOVED*** -hide_banner -loglevel fatal -vframes 1 -y resources/latest.jpg`, (err, stdout, stderr) => ***REMOVED***
+        exec(`ffmpeg -i $***REMOVED***url***REMOVED*** -hide_banner -loglevel fatal -vframes 1 -y temp/latest.jpg`, (err, stdout, stderr) => ***REMOVED***
             if (err || stderr) ***REMOVED***
                 console.log(`err: $***REMOVED***err ? err : stderr***REMOVED***`);
                 resolve(false);
@@ -55,7 +55,7 @@ function extractLatestText(url: string): Promise<string> ***REMOVED***
     return new Promise<string>((resolve, reject) => ***REMOVED***
         extractLatestFrame(url).then(hasNewestFrame => ***REMOVED***
             if (hasNewestFrame) ***REMOVED***
-                exec('python tesseract-backend/main.py resources/latest.jpg', (err, stdout, stderr) => ***REMOVED***
+                exec('python tesseract-backend/main.py temp/latest.jpg', (err, stdout, stderr) => ***REMOVED***
                     if (err || stderr) ***REMOVED***
                         console.log(`err: $***REMOVED***err ? err : stderr***REMOVED***`);
                         reject('Failed to run tesseract');
@@ -99,7 +99,7 @@ export default class SongChangeListener extends EventEmitter ***REMOVED***
     ***REMOVED***
 
     init(): void ***REMOVED***
-        if (!fs.existsSync('resources')) fs.mkdirSync('resources');
+        if (!fs.existsSync('temp')) fs.mkdirSync('temp');
         extractLatestText(this.url).then(song => ***REMOVED***
             this.currentSong = song;
             extractLatestGif(this.url).then(hasSavedGif => ***REMOVED***
@@ -112,7 +112,7 @@ export default class SongChangeListener extends EventEmitter ***REMOVED***
     ***REMOVED***
 
     loop(): void ***REMOVED***
-        fs.copyFileSync('resources/latest.jpg', 'resources/latest_backup.jpg');
+        fs.copyFileSync('temp/latest.jpg', 'temp/latest_backup.jpg');
         extractLatestText(this.url).then(song => ***REMOVED***
             if (!song) return;
             this.currentSong = song;
@@ -140,8 +140,8 @@ async function main(): Promise<void> ***REMOVED***
 
     changeListener.on('change', (current) => ***REMOVED***
         client.set('current_song', current, ***REMOVED*** expires: 30 ***REMOVED***);
-        client.set('latest.jpg', fs.readFileSync('resources/latest.jpg'), ***REMOVED*** expires: 30 ***REMOVED***);
-        client.set('latest.gif', fs.readFileSync('resources/latest.gif'), ***REMOVED*** expires: 30 ***REMOVED***);
+        client.set('latest.jpg', fs.readFileSync('temp/latest.jpg'), ***REMOVED*** expires: 30 ***REMOVED***);
+        client.set('latest.gif', fs.readFileSync('temp/latest.gif'), ***REMOVED*** expires: 30 ***REMOVED***);
     ***REMOVED***);
 
     process.on('SIGINT', () => ***REMOVED***
