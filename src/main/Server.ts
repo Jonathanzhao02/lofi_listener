@@ -138,10 +138,10 @@ export default class Server ***REMOVED***
     ***REMOVED***
 
     pause(): void ***REMOVED***
-        this.voiceChannel.guild.me.voice.setSelfMute(true);
+        this.voiceChannel.guild.me.voice.setMute(true);
     ***REMOVED***
 
     resume(): void ***REMOVED***
-        this.voiceChannel.guild.me.voice.setSelfMute(false);
+        this.voiceChannel.guild.me.voice.setMute(false);
     ***REMOVED***
 ***REMOVED***

@@ -6,8 +6,8 @@ export default class LeaveCommand extends Command ***REMOVED***
     client: LofiClient;
 
     constructor() ***REMOVED***
-        super('mute', ***REMOVED***
-           aliases: ['mute'],
+        super('pause', ***REMOVED***
+           aliases: ['pause', 'mute'],
            category: 'Music',
            description: 'Tell the bot to mute itself and give you some peace and quiet.',
            channel: 'guild',

@@ -7,7 +7,7 @@ export default class LeaveCommand extends Command ***REMOVED***
 
     constructor() ***REMOVED***
         super('resume', ***REMOVED***
-           aliases: ['resume'],
+           aliases: ['resume', 'unmute'],
            category: 'Music',
            description: 'Tell the bot to unmute itself and give you some chill beats.',
            channel: 'guild',
