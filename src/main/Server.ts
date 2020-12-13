@@ -136,12 +136,4 @@ export default class Server ***REMOVED***
     setVoiceChannel(channel: VoiceChannel): void ***REMOVED***
         this.voiceChannel = channel;
     ***REMOVED***
-
-    pause(): void ***REMOVED***
-        this.voiceChannel.guild.me.voice.setMute(true);
-    ***REMOVED***
-
-    resume(): void ***REMOVED***
-        this.voiceChannel.guild.me.voice.setMute(false);
-    ***REMOVED***
 ***REMOVED***
