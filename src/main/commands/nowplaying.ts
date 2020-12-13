@@ -9,6 +9,7 @@ export default class NowPlayingCommand extends Command ***REMOVED***
     constructor() ***REMOVED***
         super('nowplaying', ***REMOVED***
            aliases: ['nowplaying', 'np'],
+           category: 'Music',
            description: 'Get the currently playing song.',
            channel: 'guild',
            clientPermissions: ['SEND_MESSAGES', 'ATTACH_FILES'],

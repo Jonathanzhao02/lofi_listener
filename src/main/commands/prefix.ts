@@ -10,6 +10,7 @@ export default class PingCommand extends Command ***REMOVED***
     constructor() ***REMOVED***
         super('prefix', ***REMOVED***
            aliases: ['prefix'],
+           category: 'Util',
            description: 'Set the bot\'s server prefix.',
            args: [
                 ***REMOVED***

@@ -8,6 +8,7 @@ export default class UseGifsCommand extends Command ***REMOVED***
     constructor() ***REMOVED***
         super('usegifs', ***REMOVED***
            aliases: ['usegifs', 'gifs', 'gif'],
+           category: 'Util',
            description: 'Use gifs for file attachments.',
            channel: 'guild',
            clientPermissions: ['SEND_MESSAGES'],

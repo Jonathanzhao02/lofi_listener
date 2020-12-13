@@ -18,6 +18,7 @@ export default class LeaderboardsCommand extends Command ***REMOVED***
     constructor() ***REMOVED***
         super('leaderboards', ***REMOVED***
            aliases: ['leaderboards', 'leaderboard', 'lb'],
+           category: 'Fun',
            description: 'Show the servers with the top totals.',
            channel: 'guild',
            clientPermissions: ['SEND_MESSAGES'],

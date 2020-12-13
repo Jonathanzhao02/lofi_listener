@@ -8,27 +8,34 @@ export default class JoinCommand extends Command ***REMOVED***
     constructor() ***REMOVED***
         super('join', ***REMOVED***
            aliases: ['join', 'play', 'p'],
+           category: 'Music',
            description: 'Join the bot to a user\'s voice channel.',
            channel: 'guild',
            cooldown: 1000
         ***REMOVED***);
 
-        this.clientPermissions = function(message: Message): string | string[] ***REMOVED***
+        this.clientPermissions = function(message: Message): string[] ***REMOVED***
             if (message.channel instanceof DMChannel) return;
+
+            let missingPermissions = [];
     
             if (!message.channel.permissionsFor(this.client.user).has(Permissions.FLAGS.SEND_MESSAGES)) ***REMOVED***
-                return 'SEND_MESSAGES';
+                missingPermissions.push('SEND_MESSAGES');
             ***REMOVED***
     
             if (!message.member.voice.channel?.permissionsFor(this.client.user).has(Permissions.FLAGS.CONNECT)) ***REMOVED***
-                return 'CONNECT';
+                missingPermissions.push('CONNECT');
             ***REMOVED***
     
             if (!message.member.voice.channel?.permissionsFor(this.client.user).has(Permissions.FLAGS.SPEAK)) ***REMOVED***
-                return 'SPEAK';
+                missingPermissions.push('SPEAK');
             ***REMOVED***
     
-            return null;
+            if (missingPermissions.length === 0) ***REMOVED***
+                return null;
+            ***REMOVED*** else ***REMOVED***
+                return missingPermissions;
+            ***REMOVED***
         ***REMOVED***;
     ***REMOVED***
 

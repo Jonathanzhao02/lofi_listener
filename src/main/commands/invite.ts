@@ -5,6 +5,7 @@ export default class InviteCommand extends Command ***REMOVED***
     constructor() ***REMOVED***
         super('invite', ***REMOVED***
            aliases: ['getinvite', 'invite', 'inv'],
+           category: 'Util',
            description: 'Generate an invite to add Snowboy to your server.',
            clientPermissions: ['SEND_MESSAGES', 'EMBED_LINKS'],
            cooldown: 5000

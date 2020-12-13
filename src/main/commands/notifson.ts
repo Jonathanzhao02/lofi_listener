@@ -8,6 +8,7 @@ export default class NotifsOnCommand extends Command ***REMOVED***
     constructor() ***REMOVED***
         super('notifson', ***REMOVED***
            aliases: ['startnotifications', 'notifson', 'notificationson'],
+           category: 'Util',
            description: 'Turn on notifications when the song changes.',
            channel: 'guild',
            clientPermissions: ['SEND_MESSAGES'],

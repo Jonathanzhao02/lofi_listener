@@ -8,6 +8,7 @@ export default class PingCommand extends Command ***REMOVED***
     constructor() ***REMOVED***
         super('quit', ***REMOVED***
            aliases: ['quit', 'exit'],
+           category: 'admin',
            description: 'Shut down the bot.',
            ownerOnly: true,
            channel: 'dm'

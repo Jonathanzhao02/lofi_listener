@@ -8,6 +8,7 @@ export default class NotifsOffCommand extends Command ***REMOVED***
     constructor() ***REMOVED***
         super('notifsoff', ***REMOVED***
            aliases: ['stopnotifications', 'notifsoff', 'notificationsoff'],
+           category: 'Util',
            description: 'Turn off notifications when the song changes.',
            channel: 'guild',
            clientPermissions: ['SEND_MESSAGES'],

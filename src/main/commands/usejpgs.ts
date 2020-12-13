@@ -8,6 +8,7 @@ export default class UseJpgsCommand extends Command ***REMOVED***
     constructor() ***REMOVED***
         super('usejpgs', ***REMOVED***
            aliases: ['usejpgs', 'jpgs', 'jpg'],
+           category: 'Util',
            description: 'Use jpgs for file attachments.',
            channel: 'guild',
            clientPermissions: ['SEND_MESSAGES'],

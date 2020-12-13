@@ -8,6 +8,7 @@ export default class NotifyInCommand extends Command ***REMOVED***
     constructor() ***REMOVED***
         super('notifyin', ***REMOVED***
            aliases: ['notifyin', 'notify'],
+           category: 'Util',
            description: 'Send notifications to a certain channel.',
            channel: 'guild',
            clientPermissions: ['SEND_MESSAGES'],

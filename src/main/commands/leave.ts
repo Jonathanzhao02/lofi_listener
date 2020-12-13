@@ -8,6 +8,7 @@ export default class LeaveCommand extends Command ***REMOVED***
     constructor() ***REMOVED***
         super('leave', ***REMOVED***
            aliases: ['leave'],
+           category: 'Music',
            description: 'Leave the bot from a user\'s voice channel.',
            channel: 'guild',
            clientPermissions: ['SEND_MESSAGES'],

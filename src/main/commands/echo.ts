@@ -5,6 +5,7 @@ export default class EchoCommand extends Command ***REMOVED***
     constructor() ***REMOVED***
         super('echo', ***REMOVED***
            aliases: ['echo'],
+           category: 'admin',
            description: 'Echo! echo! echo.',
            ownerOnly: true
         ***REMOVED***);

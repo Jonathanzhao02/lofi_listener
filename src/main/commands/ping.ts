@@ -5,6 +5,7 @@ export default class PingCommand extends Command ***REMOVED***
     constructor() ***REMOVED***
         super('ping', ***REMOVED***
            aliases: ['ping'],
+           category: 'Util',
            description: 'Pong!',
            clientPermissions: ['SEND_MESSAGES']
         ***REMOVED***);

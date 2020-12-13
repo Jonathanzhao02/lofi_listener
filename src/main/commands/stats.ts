@@ -9,6 +9,7 @@ export default class StatsCommand extends Command ***REMOVED***
     constructor() ***REMOVED***
         super('stats', ***REMOVED***
            aliases: ['stats', 'uptime'],
+           category: 'Util',
            description: 'Displays stats about the bot.',
            channel: 'guild',
            clientPermissions: ['SEND_MESSAGES'],
