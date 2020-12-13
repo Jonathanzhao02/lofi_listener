@@ -47,6 +47,10 @@ export default class JoinCommand extends Command ***REMOVED***
             message.channel.send('Already in your voice channel.');
             return;
         ***REMOVED***
+    
+        this.client.getServer(message.guild.id)?.setConnected(false);
+        this.client.getServer(message.guild.id)?.setVoiceChannel(message.member.voice.channel);
+        message.guild.me.voice.setSelfMute(false);
         message.member.voice.channel.join()
         .then(connection => ***REMOVED***
             let dispatcher = connection.play(this.client.getBroadcast(), ***REMOVED***
@@ -60,9 +64,15 @@ export default class JoinCommand extends Command ***REMOVED***
             connection.on('disconnect', () => ***REMOVED***
                 dispatcher.destroy();
                 this.client.getServer(message.guild.id)?.setConnected(false);
+                this.client.getServer(message.guild.id)?.setVoiceChannel(null);
             ***REMOVED***);
 
             this.client.getServer(message.guild.id)?.setConnected(true);
+        ***REMOVED***)
+        .catch(reason => ***REMOVED***
+            console.log(reason);
+            message.reply('Could not join your voice channel.');
+            this.client.getServer(message.guild.id)?.setVoiceChannel(null);
         ***REMOVED***);
     ***REMOVED***
 ***REMOVED***

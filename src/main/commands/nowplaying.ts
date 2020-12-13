@@ -21,7 +21,7 @@ export default class NowPlayingCommand extends Command ***REMOVED***
         const embed = new MessageEmbed()
             .setColor('#66ccff')
             .setTitle('▶️ Now Playing')
-            .setDescription(this.client.getSongListener().getCurrentSong());
+            .setDescription(this.client.getSongListener().getCurrentSong() || 'None');
 
         const server = this.client.getServer(message.guild.id);
 

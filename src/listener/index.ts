@@ -103,7 +103,7 @@ export default class SongChangeListener extends EventEmitter ***REMOVED***
         extractLatestText(this.url).then(song => ***REMOVED***
             this.currentSong = song;
             extractLatestGif(this.url).then(hasSavedGif => ***REMOVED***
-                this.emit('change', this.currentSong);
+                this.emit('change', song);
                 this.processId = setInterval(this.loop.bind(this), 5000);
             ***REMOVED***);
         ***REMOVED***).catch(err => ***REMOVED***
@@ -117,7 +117,7 @@ export default class SongChangeListener extends EventEmitter ***REMOVED***
             if (!song) return;
             this.currentSong = song;
             extractLatestGif(this.url).then(hasSavedGif => ***REMOVED***
-                this.emit('change', this.currentSong);
+                this.emit('change', song);
             ***REMOVED***);
         ***REMOVED***).catch(err => ***REMOVED***
             console.log(err);

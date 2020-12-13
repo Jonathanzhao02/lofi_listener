@@ -53,7 +53,6 @@ export default class Server ***REMOVED***
         this.sessionTime = 0;
         this.sessionSongs = 0;
 
-        this.voiceChannel = message.member?.voice?.channel;
         this.connected = false;
     ***REMOVED***
 
@@ -132,5 +131,17 @@ export default class Server ***REMOVED***
 
     getUseGifs(): boolean ***REMOVED***
         return this.useGifs;
+    ***REMOVED***
+
+    setVoiceChannel(channel: VoiceChannel): void ***REMOVED***
+        this.voiceChannel = channel;
+    ***REMOVED***
+
+    pause(): void ***REMOVED***
+        this.voiceChannel.guild.me.voice.setSelfMute(true);
+    ***REMOVED***
+
+    resume(): void ***REMOVED***
+        this.voiceChannel.guild.me.voice.setSelfMute(false);
     ***REMOVED***
 ***REMOVED***
