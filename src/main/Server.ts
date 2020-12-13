@@ -61,7 +61,7 @@ export default class Server ***REMOVED***
 
         if (on) ***REMOVED***
             this.startTime = Date.now();
-        ***REMOVED*** else ***REMOVED***
+        ***REMOVED*** else if (!isNaN(this.startTime)) ***REMOVED***
             this.sessionTime += Date.now() - this.startTime;
         ***REMOVED***
 
@@ -110,7 +110,7 @@ export default class Server ***REMOVED***
     ***REMOVED***
 
     etime(): number ***REMOVED***
-        return this.sessionTime + (this.connected? Date.now() - this.startTime : 0);
+        return this.sessionTime + (this.connected ? Date.now() - this.startTime : 0);
     ***REMOVED***
 
     totalEtime(): number ***REMOVED***
