@@ -56,15 +56,16 @@ export default class Server ***REMOVED***
         this.connected = false;
     ***REMOVED***
 
-    setConnected(on: boolean): void ***REMOVED***
-        this.connected = on;
+    addSessionTime(): void ***REMOVED***
+        if (!isNaN(this.startTime)) this.sessionTime += Date.now() - this.startTime;
+    ***REMOVED***
 
+    setConnected(on: boolean): void ***REMOVED***
         if (on) ***REMOVED***
             this.startTime = Date.now();
-        ***REMOVED*** else if (!isNaN(this.startTime)) ***REMOVED***
-            this.sessionTime += Date.now() - this.startTime;
         ***REMOVED***
 
+        this.connected = on;
     ***REMOVED***
 
     getConnected(): boolean ***REMOVED***
