@@ -57,6 +57,22 @@ function isValidUrl(url: string): boolean ***REMOVED***
     ***REMOVED***
 ***REMOVED***
 
+async function fetchResources(): Promise<boolean> ***REMOVED***
+    const gifBuffer = await checkValue(this.client, 'latest.gif');
+    const jpgBuffer = await checkValue(this.client, 'latest.jpg');
+    if (gifBuffer && jpgBuffer) ***REMOVED***
+        if (fs.existsSync('temp/latest.gif')) fs.copyFileSync('temp/latest.gif', 'temp/latest_old.gif');
+        if (fs.existsSync('temp/latest.jpg')) fs.copyFileSync('temp/latest.jpg', 'temp/latest_old.jpg');
+        const gifBuffType = await ft.fromBuffer(gifBuffer);
+        const jpgBuffType = await ft.fromBuffer(jpgBuffer);
+        if (gifBuffType?.ext.valueOf() === 'gif') fs.writeFileSync('temp/latest.gif', gifBuffer);
+        if (jpgBuffType?.ext.valueOf() === 'jpg') fs.writeFileSync('temp/latest.jpg', jpgBuffer);
+        return gifBuffType?.ext.valueOf() === 'gif' && jpgBuffType?.ext.valueOf() === 'jpg';
+    ***REMOVED***
+
+    return false;
+***REMOVED***
+
 export default class MemSongListener extends EventEmitter ***REMOVED***
     private url: string;
     private processId: ReturnType<typeof setTimeout>
@@ -79,14 +95,10 @@ export default class MemSongListener extends EventEmitter ***REMOVED***
             this.songsPlayed = 0;
             checkValue(this.client, 'current_song').then(async song => ***REMOVED***
                 if (song) this.currentSong = song.toString();
-                const gifBuffer = await checkValue(this.client, 'latest.gif');
-                const jpgBuffer = await checkValue(this.client, 'latest.jpg');
-                if (gifBuffer && jpgBuffer) ***REMOVED***
-                    const gifBuffType = await ft.fromBuffer(gifBuffer);
-                    const jpgBuffType = await ft.fromBuffer(jpgBuffer);
-                    if (gifBuffType?.ext.valueOf() === 'gif') fs.writeFileSync('temp/latest.gif', gifBuffer);
-                    if (jpgBuffType?.ext.valueOf() === 'jpg') fs.writeFileSync('temp/latest.jpg', jpgBuffer);
-                ***REMOVED***
+                let success = false;
+                do ***REMOVED***
+                    success = await fetchResources();
+                ***REMOVED*** while (!success);
                 this.processId = setInterval(this.loop.bind(this), 5000);
             ***REMOVED***);
         ***REMOVED***);
@@ -99,16 +111,10 @@ export default class MemSongListener extends EventEmitter ***REMOVED***
                 this.lastSong = this.currentSong;
                 this.currentSong = song.toString();
                 this.songsPlayed++;
-                const gifBuffer = await checkValue(this.client, 'latest.gif');
-                const jpgBuffer = await checkValue(this.client, 'latest.jpg');
-                if (gifBuffer && jpgBuffer) ***REMOVED***
-                    if (fs.existsSync('temp/latest.gif')) fs.copyFileSync('temp/latest.gif', 'temp/latest_old.gif');
-                    if (fs.existsSync('temp/latest.jpg')) fs.copyFileSync('temp/latest.jpg', 'temp/latest_old.jpg');
-                    const gifBuffType = await ft.fromBuffer(gifBuffer);
-                    const jpgBuffType = await ft.fromBuffer(jpgBuffer);
-                    if (gifBuffType?.ext.valueOf() === 'gif') fs.writeFileSync('temp/latest.gif', gifBuffer);
-                    if (jpgBuffType?.ext.valueOf() === 'jpg') fs.writeFileSync('temp/latest.jpg', jpgBuffer);
-                ***REMOVED***
+                let success = false;
+                do ***REMOVED***
+                    success = await fetchResources();
+                ***REMOVED*** while (!success);
                 this.emit('change', this.currentSong, this.lastSong);
             ***REMOVED***
         ***REMOVED***);
