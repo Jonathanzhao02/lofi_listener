@@ -1,12 +1,11 @@
 import ***REMOVED*** EventEmitter ***REMOVED*** from 'events';
 import * as fs from 'fs';
+import * as ft from 'file-type';
 
 const ***REMOVED*** CHANGE_THRESHOLD ***REMOVED*** = require('../../config.json');
 
 function compareLevenshtein(a: string, b: string): number ***REMOVED***
     if (!a || !b) return a?.length || b?.length;
-    if(a.length == 0) return b.length; 
-    if(b.length == 0) return a.length; 
 
     let matrix = [];
 
@@ -83,8 +82,10 @@ export default class MemSongListener extends EventEmitter ***REMOVED***
                 const gifBuffer = await checkValue(this.client, 'latest.gif');
                 const jpgBuffer = await checkValue(this.client, 'latest.jpg');
                 if (gifBuffer && jpgBuffer) ***REMOVED***
-                    fs.writeFileSync('temp/latest.gif', gifBuffer);
-                    fs.writeFileSync('temp/latest.jpg', jpgBuffer);
+                    const gifBuffType = await ft.fromBuffer(gifBuffer);
+                    const jpgBuffType = await ft.fromBuffer(jpgBuffer);
+                    if (gifBuffType.ext.valueOf() === 'gif') fs.writeFileSync('temp/latest.gif', gifBuffer);
+                    if (jpgBuffType.ext.valueOf() === 'jpg') fs.writeFileSync('temp/latest.jpg', jpgBuffer);
                 ***REMOVED***
                 this.processId = setInterval(this.loop.bind(this), 5000);
             ***REMOVED***);
@@ -94,7 +95,7 @@ export default class MemSongListener extends EventEmitter ***REMOVED***
     loop(): void ***REMOVED***
         this.client.set('stream_url', this.url, ***REMOVED*** expire: 30 ***REMOVED***);
         checkValue(this.client, 'current_song').then(async song => ***REMOVED***
-            if (song && compareLevenshtein(song.toString(), this.currentSong) > CHANGE_THRESHOLD) ***REMOVED***
+            if (song && compareLevenshtein(song.toString(), this.currentSong) > CHANGE_THRESHOLD && compareLevenshtein(song.toString(), this.lastSong) > CHANGE_THRESHOLD) ***REMOVED***
                 this.lastSong = this.currentSong;
                 this.currentSong = song.toString();
                 this.songsPlayed++;
@@ -103,8 +104,10 @@ export default class MemSongListener extends EventEmitter ***REMOVED***
                 if (gifBuffer && jpgBuffer) ***REMOVED***
                     if (fs.existsSync('temp/latest.gif')) fs.copyFileSync('temp/latest.gif', 'temp/latest_old.gif');
                     if (fs.existsSync('temp/latest.jpg')) fs.copyFileSync('temp/latest.jpg', 'temp/latest_old.jpg');
-                    fs.writeFileSync('temp/latest.gif', gifBuffer);
-                    fs.writeFileSync('temp/latest.jpg', jpgBuffer);
+                    const gifBuffType = await ft.fromBuffer(gifBuffer);
+                    const jpgBuffType = await ft.fromBuffer(jpgBuffer);
+                    if (gifBuffType.ext.valueOf() === 'gif') fs.writeFileSync('temp/latest.gif', gifBuffer);
+                    if (jpgBuffType.ext.valueOf() === 'jpg') fs.writeFileSync('temp/latest.jpg', jpgBuffer);
                 ***REMOVED***
                 this.emit('change', this.currentSong, this.lastSong);
             ***REMOVED***
