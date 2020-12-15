@@ -7,7 +7,13 @@ import Server from './Server';
 import ServerSchema, { ServerDocument } from './models/ServerSchema';
 import ServerMongooseProvider from './providers/ServerMongooseProvider';
 
-const { DB_URL, STATS_SAVE_INTERVAL, LEADERBOARD_UPDATE_INTERVAL, BOT_PREFIX, MAX_LEADERBOARD_POSITIONS, MAX_LAST_SONGS } = require('../../config.json');
+const DB_URL = process.env['DB_URL'];
+const BOT_PREFIX = process.env['BOT_PREFIX'];
+const STATS_SAVE_INTERVAL = Number(process.env['STATS_SAVE_INTERVAL']);
+const LEADERBOARD_UPDATE_INTERVAL = Number(process.env['LEADERBOARD_UPDATE_INTERVAL']);
+const MAX_LEADERBOARD_POSITIONS = Number(process.env['MAX_LEADERBOARD_POSITIONS']);
+const MAX_LAST_SONGS = Number(process.env['MAX_LAST_SONGS']);
+
 const isDevelopment = process.env.NODE_ENV.valueOf() !== 'production';
 
 export default class LofiClient extends AkairoClient {

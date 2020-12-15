@@ -1,5 +1,5 @@
 import mongoose, { Document } from 'mongoose';
-const { BOT_PREFIX } = require('../../../config.json');
+const BOT_PREFIX = process.env['BOT_PREFIX'];
 const Schema = mongoose.Schema;
 
 const ServerSchema = new Schema(

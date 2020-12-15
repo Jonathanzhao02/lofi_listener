@@ -21,14 +21,15 @@
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.9.0",
     "@typescript-eslint/parser": "^4.9.0",
+    "dotenv": "^8.2.0",
     "eslint": "^7.14.0",
     "standard": "^16.0.3"
   },
   "scripts": {
-    "dev": "tsc && NODE_ENV=development node --optimize_for_size --max_old_space_size=460 --unhandled-rejections=strict build/main/index.js",
+    "dev": "tsc && NODE_ENV=development node --optimize_for_size --max_old_space_size=460 --unhandled-rejections=strict -r dotenv/config build/main/index.js",
     "production": "tsc && NODE_ENV=production node --optimize_for_size --max_old_space_size=460 --unhandled-rejections=strict build/main/index.js",
     "listener": "tsc && node --optimize_for_size --max_old_space_size=460 --unhandled-rejections=strict build/listener/index.js",
-    "devlistener": "tsc && node --inspect --optimize_for_size --max_old_space_size=460 --unhandled-rejections=strict build/listener/index.js",
+    "devlistener": "tsc && node --optimize_for_size --max_old_space_size=460 --unhandled-rejections=strict -r dotenv/config build/listener/index.js",
     "rebuild": "rm -r build/* && tsc",
     "update": "yarn set version latest",
     "lint": "eslint src/**/*.ts",

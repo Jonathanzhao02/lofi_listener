@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import * as fs from 'fs';
 import * as ft from 'file-type';
 
-const { CHANGE_THRESHOLD } = require('../../config.json');
+const CHANGE_THRESHOLD = Number(process.env['CHANGE_THRESHOLD']);
 
 function compareLevenshtein(a: string, b: string): number {
     if (!a || !b) return a?.length || b?.length;

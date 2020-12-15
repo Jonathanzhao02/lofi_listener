@@ -4,7 +4,9 @@ import { EventEmitter } from 'events';
 import { URL } from 'url';
 import * as fs from 'fs';
 
-const { MEMCACHIER_USERNAME, MEMCACHIER_PASSWORD, MEMCACHIER_SERVERS } = require('../../config.json');
+const MEMCACHIER_USERNAME = process.env['MEMCACHIER_USERNAME'];
+const MEMCACHIER_PASSWORD = process.env['MEMCACHIER_PASSWORD'];
+const MEMCACHIER_SERVERS = process.env['MEMCACHIER_SERVERS'];
 
 function extractSong(text: string): string {
     const lines = text.split('\n');
@@ -112,7 +114,7 @@ export default class SongChangeListener extends EventEmitter {
     }
 
     loop(): void {
-        fs.copyFileSync('temp/latest.jpg', 'temp/latest_backup.jpg');
+        // fs.copyFileSync('temp/latest.jpg', 'temp/latest_backup.jpg');
         extractLatestText(this.url).then(song => {
             if (!song) return;
             this.currentSong = song;

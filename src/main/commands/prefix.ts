@@ -2,7 +2,7 @@ import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
 import LofiClient from '../LofiClient';
 
-const { BOT_PREFIX } = require('../../../config.json');
+const BOT_PREFIX = process.env['BOT_PREFIX'];
 
 export default class PingCommand extends Command {
     client: LofiClient;

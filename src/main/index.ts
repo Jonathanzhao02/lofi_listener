@@ -3,7 +3,13 @@ import memjs from 'memjs';
 import MemSongListener from './MemSongListener';
 import LofiClient from './LofiClient';
 
-const { MEMCACHIER_USERNAME, MEMCACHIER_PASSWORD, MEMCACHIER_SERVERS, TEST_BOT_TOKEN, BOT_TOKEN, STREAM_URL } = require('../../config.json');
+const MEMCACHIER_USERNAME = process.env['MEMCACHIER_USERNAME'];
+const MEMCACHIER_PASSWORD = process.env['MEMCACHIER_PASSWORD'];
+const MEMCACHIER_SERVERS = process.env['MEMCACHIER_SERVERS'];
+const TEST_BOT_TOKEN = process.env['TEST_BOT_TOKEN'];
+const BOT_TOKEN = process.env['BOT_TOKEN'];
+const STREAM_URL = process.env['STREAM_URL'];
+
 const isDevelopment = process.env.NODE_ENV.valueOf() !== 'production';
 
 function getBestFormat(url: string): Promise<string> {
