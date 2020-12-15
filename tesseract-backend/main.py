@@ -20,18 +20,24 @@ gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
 thresh = cv2.threshold(gray, CV_THRESH, 255, cv2.THRESH_BINARY)[1]
 thresh = 255 - thresh
 
-# edged = cv2.Canny(thresh, 255, 0)
-# contours, hierarchy = cv2.findContours(edged.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+edged = cv2.Canny(thresh, 255, 0)
+contours, hierarchy = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+used_contours = []
 
-# for cnt in contours:
-#     if cv2.contourArea(cnt) > 1000 or cv2.contourArea(cnt) < 1:
-#         (x,y,w,h) = cv2.boundingRect(cnt)
-#         cv2.rectangle(image,(x,y),(x+w,y+h),(0,255,0),1)
+for cnt in contours:
+    (x,y,w,h) = cv2.boundingRect(cnt)
+    cv2.rectangle(image,(x,y),(x+w,y+h),(0,255,0),1)
 
-# cv2.imwrite("contours.png", image)
-# cv2.imwrite("processed.png", thresh)
+    if x < 500:
+        used_contours.append(cnt)
 
-custom_oem_psm_config = r'--oem 0 --psm 7' # --tessdata-dir /Users/mac/Downloads'
+cv2.drawContours(thresh, used_contours,
+                -1, 255, -1)
+
+# cv2.imwrite("temp/contours.png", image)
+# cv2.imwrite("temp/processed.png", thresh)
+
+custom_oem_psm_config = r'--oem 0 --psm 7 --tessdata-dir /Users/mac/Downloads'
 text = pytesseract.image_to_string(thresh, lang='eng', config=custom_oem_psm_config)
 print(text)
 
