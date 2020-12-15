@@ -185,7 +185,7 @@ export default class LofiClient extends AkairoClient {
     }
 
     pushLastSong(): void {
-        this.lastSongs.unshift(this.songListener.getLastSong());
+        if (this.songListener.getLastSong()) this.lastSongs.unshift(this.songListener.getLastSong());
         this.songsPlayed++;
 
         while (this.lastSongs.length > MAX_LAST_SONGS) {
