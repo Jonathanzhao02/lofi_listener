@@ -1,5 +1,5 @@
-***REMOVED***
-    "compilerOptions": ***REMOVED***
+{
+    "compilerOptions": {
         "module": "commonjs",
         "target": "es2016",
         "jsx": "preserve",
@@ -7,10 +7,10 @@
         "skipLibCheck": true,
         "esModuleInterop": true,
         "outDir": "build"
-    ***REMOVED***,
+    },
     "exclude": [
         "node_modules",
         "build",
         "old"
     ]
-***REMOVED***
+}

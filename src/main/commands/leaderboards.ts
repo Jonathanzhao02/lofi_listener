@@ -1,32 +1,32 @@
-import ***REMOVED*** Command ***REMOVED*** from 'discord-akairo';
-import ***REMOVED*** Message, MessageEmbed ***REMOVED*** from 'discord.js';
+import { Command } from 'discord-akairo';
+import { Message, MessageEmbed } from 'discord.js';
 import LofiClient from '../LofiClient';
-import ***REMOVED*** etimeLabeled ***REMOVED*** from '../util/etime';
+import { etimeLabeled } from '../util/etime';
 
-async function resolveGuildName(id: string, client: LofiClient): Promise<string> ***REMOVED***
-    try***REMOVED***
+async function resolveGuildName(id: string, client: LofiClient): Promise<string> {
+    try{
         const guild = await client.guilds.fetch(id);
         return guild.name;
-    ***REMOVED*** catch ***REMOVED***
+    } catch {
         return '???';
-    ***REMOVED***
-***REMOVED***
+    }
+}
 
-export default class LeaderboardsCommand extends Command ***REMOVED***
+export default class LeaderboardsCommand extends Command {
     client: LofiClient;
 
-    constructor() ***REMOVED***
-        super('leaderboards', ***REMOVED***
+    constructor() {
+        super('leaderboards', {
            aliases: ['leaderboards', 'leaderboard', 'lb'],
            category: 'Fun',
            description: 'Show the servers with the top totals.',
            channel: 'guild',
            clientPermissions: ['SEND_MESSAGES'],
            cooldown: 5000
-        ***REMOVED***);
-    ***REMOVED***
+        });
+    }
 
-    async exec(message: Message): Promise<Message> ***REMOVED***
+    async exec(message: Message): Promise<Message> {
         const timeLeaderboard = this.client.getTimeLeaderboard();
         const songLeaderboard = this.client.getSongLeaderboard();
         const embed = new MessageEmbed()
@@ -35,18 +35,18 @@ export default class LeaderboardsCommand extends Command ***REMOVED***
 
         embed.addField('\u200B', '🌟Top Time Listened🌟');
         
-        for (let i = 0; i < timeLeaderboard.length; i++) ***REMOVED***
-            embed.addField(`$***REMOVED***i+1***REMOVED***. $***REMOVED***await resolveGuildName(timeLeaderboard[i].id, this.client)***REMOVED***`, etimeLabeled(timeLeaderboard[i].data.totalTime));
-        ***REMOVED***
+        for (let i = 0; i < timeLeaderboard.length; i++) {
+            embed.addField(`${i+1}. ${await resolveGuildName(timeLeaderboard[i].id, this.client)}`, etimeLabeled(timeLeaderboard[i].data.totalTime));
+        }
 
         embed.addField('\u200B', '🌟Top Songs Listened🌟');
 
-        for (let i = 0; i < songLeaderboard.length; i++) ***REMOVED***
-            embed.addField(`$***REMOVED***i+1***REMOVED***. $***REMOVED***await resolveGuildName(songLeaderboard[i].id, this.client)***REMOVED***`, `$***REMOVED***songLeaderboard[i].data.totalSongs***REMOVED*** songs`);
-        ***REMOVED***
+        for (let i = 0; i < songLeaderboard.length; i++) {
+            embed.addField(`${i+1}. ${await resolveGuildName(songLeaderboard[i].id, this.client)}`, `${songLeaderboard[i].data.totalSongs} songs`);
+        }
 
         return message.channel.send(embed
             .setFooter('Leaderboards update every hour!')
         );
-    ***REMOVED***
-***REMOVED***
+    }
+}

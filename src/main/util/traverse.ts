@@ -1,26 +1,26 @@
-function traverse<T>(obj: any, paths: string[]): T ***REMOVED***
+function traverse<T>(obj: any, paths: string[]): T {
     let val = obj;
 
-    for (let i = 0; i < paths.length - 1; i++) ***REMOVED***
+    for (let i = 0; i < paths.length - 1; i++) {
         if (paths[i].length == 0) continue;
-        if (!val[paths[i]]) val[paths[i]] = ***REMOVED******REMOVED***;
+        if (!val[paths[i]]) val[paths[i]] = {};
         val = val[paths[i]];
-    ***REMOVED***
+    }
 
     return val;
-***REMOVED***
+}
 
-export function traverseGet<T>(obj: any, paths: string[]): T ***REMOVED***
-    const traversedObj = traverse<***REMOVED*** T ***REMOVED***>(obj, paths);
+export function traverseGet<T>(obj: any, paths: string[]): T {
+    const traversedObj = traverse<{ T }>(obj, paths);
     return traversedObj[paths[paths.length - 1]];
-***REMOVED***
+}
 
-export function traverseSet<T>(obj: any, paths: string[], value: T) ***REMOVED***
-    const traversedObj = traverse<***REMOVED*** T ***REMOVED***>(obj, paths);
+export function traverseSet<T>(obj: any, paths: string[], value: T) {
+    const traversedObj = traverse<{ T }>(obj, paths);
     traversedObj[paths[paths.length - 1]] = value;
-***REMOVED***
+}
 
-export function traverseDelete(obj: any, paths: string[]) ***REMOVED***
+export function traverseDelete(obj: any, paths: string[]) {
     const traversedObj = traverse(obj, paths);
     delete traversedObj[paths[paths.length - 1]];
-***REMOVED***
+}

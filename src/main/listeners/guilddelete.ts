@@ -1,17 +1,17 @@
-import ***REMOVED*** Listener ***REMOVED*** from 'discord-akairo';
+import { Listener } from 'discord-akairo';
 import LofiClient from '../LofiClient';
 
-export default class ReadyListener extends Listener ***REMOVED***
+export default class ReadyListener extends Listener {
     client: LofiClient;
 
-    constructor() ***REMOVED***
-        super('guilddelete', ***REMOVED***
+    constructor() {
+        super('guilddelete', {
             emitter: 'client',
             event: 'guildDelete'
-        ***REMOVED***);
-    ***REMOVED***
+        });
+    }
 
-    async exec(guild): Promise<void> ***REMOVED***
+    async exec(guild): Promise<void> {
         await this.client.provider.clear(guild.id);
-    ***REMOVED***
-***REMOVED***
+    }
+}

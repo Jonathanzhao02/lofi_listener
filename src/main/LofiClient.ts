@@ -1,16 +1,16 @@
-import ***REMOVED*** AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler ***REMOVED*** from 'discord-akairo';
-import ***REMOVED*** VoiceBroadcast, Snowflake ***REMOVED*** from 'discord.js';
+import { AkairoClient, CommandHandler, InhibitorHandler, ListenerHandler } from 'discord-akairo';
+import { VoiceBroadcast, Snowflake } from 'discord.js';
 import mongoose from 'mongoose';
-import ***REMOVED*** EventEmitter ***REMOVED*** from 'events';
+import { EventEmitter } from 'events';
 import MemSongListener from './MemSongListener';
 import Server from './Server';
-import ServerSchema, ***REMOVED*** ServerDocument ***REMOVED*** from './models/ServerSchema';
+import ServerSchema, { ServerDocument } from './models/ServerSchema';
 import ServerMongooseProvider from './providers/ServerMongooseProvider';
 
-const ***REMOVED*** DB_URL, STATS_SAVE_INTERVAL, LEADERBOARD_UPDATE_INTERVAL, BOT_PREFIX, MAX_LEADERBOARD_POSITIONS, MAX_LAST_SONGS ***REMOVED*** = require('../../config.json');
+const { DB_URL, STATS_SAVE_INTERVAL, LEADERBOARD_UPDATE_INTERVAL, BOT_PREFIX, MAX_LEADERBOARD_POSITIONS, MAX_LAST_SONGS } = require('../../config.json');
 const isDevelopment = process.env.NODE_ENV.valueOf() !== 'production';
 
-export default class LofiClient extends AkairoClient ***REMOVED***
+export default class LofiClient extends AkairoClient {
     private static singleton: LofiClient;
     private commandHandler: CommandHandler;
     private inhibitorHandler: InhibitorHandler;
@@ -27,49 +27,49 @@ export default class LofiClient extends AkairoClient ***REMOVED***
     private songLeaderboard: ServerDocument[];
     readonly provider: ServerMongooseProvider;
 
-    static getSingleton(): LofiClient ***REMOVED***
+    static getSingleton(): LofiClient {
         return this.singleton;
-    ***REMOVED***
+    }
 
-    constructor() ***REMOVED***
+    constructor() {
         super(
-            ***REMOVED***
+            {
                 ownerID: '290237225596092416'
-            ***REMOVED***,
-            ***REMOVED***
+            },
+            {
                 messageCacheMaxSize: 0,
                 messageEditHistoryMaxSize: 0
-            ***REMOVED***
+            }
         );
 
-        if (!LofiClient.singleton) ***REMOVED***
+        if (!LofiClient.singleton) {
             LofiClient.singleton = this;
-        ***REMOVED*** else ***REMOVED***
+        } else {
             throw Error('LofiClient already instantiated!');
-        ***REMOVED***
+        }
 
-        this.commandHandler = new CommandHandler(this, ***REMOVED***
+        this.commandHandler = new CommandHandler(this, {
             directory: './build/main/commands/',
-            prefix: async (message): Promise<string> => ***REMOVED***
+            prefix: async (message): Promise<string> => {
                 if (!message.guild) return BOT_PREFIX;
 
-                if (!this.hasServer(message.guild.id)) ***REMOVED***
+                if (!this.hasServer(message.guild.id)) {
                     const server = new Server(this);
                     await server.init(message);                    
                     this.addServer(message.guild.id, server);
-                ***REMOVED***
+                }
 
                 return this.getServer(message.guild.id).getPrefix();
-            ***REMOVED***
-        ***REMOVED***);
+            }
+        });
 
-        this.inhibitorHandler = new InhibitorHandler(this, ***REMOVED***
+        this.inhibitorHandler = new InhibitorHandler(this, {
             directory: './build/main/inhibitors/'
-        ***REMOVED***);
+        });
 
-        this.listenerHandler = new ListenerHandler(this, ***REMOVED***
+        this.listenerHandler = new ListenerHandler(this, {
             directory: './build/main/listeners'
-        ***REMOVED***);
+        });
 
         this.broadcast = this.voice.createBroadcast();
         this.servers = new Map<Snowflake, Server>();
@@ -83,30 +83,30 @@ export default class LofiClient extends AkairoClient ***REMOVED***
         this.registerEmitter('listenerHandler', this.listenerHandler);
 
         this.provider = new ServerMongooseProvider(ServerSchema);
-    ***REMOVED***
+    }
 
-    async saveStats(): Promise<void> ***REMOVED***
+    async saveStats(): Promise<void> {
         await this.provider.set('me', 'data.totalTime', Date.now() - this.startTime + this.totalTime);
         await this.provider.set('me', 'data.totalSongs', this.songsPlayed + this.totalSongsPlayed);
 
-        for (const [id, server] of this.servers) ***REMOVED***
+        for (const [id, server] of this.servers) {
             await this.provider.set(id, 'data.totalTime', server.totalEtime());
             await this.provider.set(id, 'data.totalSongs', server.getTotalSongsPlayed());
-        ***REMOVED***
-    ***REMOVED***
+        }
+    }
 
-    async updateLeaderboard(): Promise<void> ***REMOVED***
+    async updateLeaderboard(): Promise<void> {
         this.timeLeaderboard = await this.provider.getHighest('data.totalTime', MAX_LEADERBOARD_POSITIONS);
         this.songLeaderboard = await this.provider.getHighest('data.totalSongs', MAX_LEADERBOARD_POSITIONS);
-    ***REMOVED***
+    }
 
-    async login(token: string): Promise<string> ***REMOVED***
-        await mongoose.connect(isDevelopment? DB_URL.replace('<dbname>', 'test') : DB_URL.replace('<dbname>', 'production'), ***REMOVED***
+    async login(token: string): Promise<string> {
+        await mongoose.connect(isDevelopment? DB_URL.replace('<dbname>', 'test') : DB_URL.replace('<dbname>', 'production'), {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             useFindAndModify: false,
             useCreateIndex: true
-        ***REMOVED***);
+        });
         await this.provider.init();
         this.lastSongs = [];
         this.totalTime = this.provider.get('me', 'data.totalTime', 0);
@@ -116,96 +116,96 @@ export default class LofiClient extends AkairoClient ***REMOVED***
         this.setInterval(this.saveStats.bind(this), STATS_SAVE_INTERVAL);
         this.setInterval(this.updateLeaderboard.bind(this), LEADERBOARD_UPDATE_INTERVAL);
         return super.login(token);
-    ***REMOVED***
+    }
 
-    load(): void ***REMOVED***
+    load(): void {
         this.listenerHandler.loadAll();
         this.inhibitorHandler.loadAll();
         this.commandHandler.loadAll();
-    ***REMOVED***
+    }
 
-    registerEmitter(id: string, emitter: EventEmitter): void ***REMOVED***
+    registerEmitter(id: string, emitter: EventEmitter): void {
         this.listenerHandler.emitters.set(id, emitter);
-    ***REMOVED***
+    }
 
-    broadcastSound(url: string): void ***REMOVED***
+    broadcastSound(url: string): void {
         this.broadcast.play(url);
-    ***REMOVED***
+    }
 
-    foreachServer(handler: (Server) => void): void ***REMOVED***
+    foreachServer(handler: (Server) => void): void {
         this.servers.forEach(server => handler(server));
-    ***REMOVED***
+    }
 
-    getServer(id: Snowflake): Server ***REMOVED***
+    getServer(id: Snowflake): Server {
         return this.servers.get(id);
-    ***REMOVED***
+    }
 
-    addServer(id: Snowflake, server: Server): Map<Snowflake, Server> ***REMOVED***
+    addServer(id: Snowflake, server: Server): Map<Snowflake, Server> {
         return this.servers.set(id, server);
-    ***REMOVED***
+    }
 
-    hasServer(id: Snowflake): boolean ***REMOVED***
+    hasServer(id: Snowflake): boolean {
         return this.servers.has(id);
-    ***REMOVED***
+    }
 
-    removeServer(id: Snowflake): boolean ***REMOVED***
+    removeServer(id: Snowflake): boolean {
         return this.servers.delete(id);
-    ***REMOVED***
+    }
 
-    setSongListener(listener: MemSongListener): void ***REMOVED***
+    setSongListener(listener: MemSongListener): void {
         this.songListener = listener;
-    ***REMOVED***
+    }
 
-    getSongListener(): MemSongListener ***REMOVED***
+    getSongListener(): MemSongListener {
         return this.songListener;
-    ***REMOVED***
+    }
 
-    getSongsPlayed(): number ***REMOVED***
+    getSongsPlayed(): number {
         return this.songsPlayed;
-    ***REMOVED***
+    }
 
-    getTotalSongsPlayed(): number ***REMOVED***
+    getTotalSongsPlayed(): number {
         return this.totalSongsPlayed + this.songsPlayed;
-    ***REMOVED***
+    }
 
-    etime(): number ***REMOVED***
+    etime(): number {
         return Date.now() - this.startTime;
-    ***REMOVED***
+    }
 
-    totalEtime(): number ***REMOVED***
+    totalEtime(): number {
         return Date.now() - this.startTime + this.totalTime;
-    ***REMOVED***
+    }
 
-    getStartDate(): Date ***REMOVED***
+    getStartDate(): Date {
         return new Date(this.startTime);
-    ***REMOVED***
+    }
 
-    getBroadcast(): VoiceBroadcast ***REMOVED***
+    getBroadcast(): VoiceBroadcast {
         return this.broadcast;
-    ***REMOVED***
+    }
 
-    pushLastSong(): void ***REMOVED***
+    pushLastSong(): void {
         this.lastSongs.unshift(this.songListener.getLastSong());
         this.songsPlayed++;
 
-        while (this.lastSongs.length > MAX_LAST_SONGS) ***REMOVED***
+        while (this.lastSongs.length > MAX_LAST_SONGS) {
             this.lastSongs.pop();
-        ***REMOVED***
-    ***REMOVED***
+        }
+    }
 
-    getLastSongs(): string ***REMOVED***
+    getLastSongs(): string {
         return this.lastSongs.reduce((prev, current, index) => prev + (index + 1) + '. ' + current + '\n', '');
-    ***REMOVED***
+    }
 
-    getCommandHandler(): CommandHandler ***REMOVED***
+    getCommandHandler(): CommandHandler {
         return this.commandHandler;
-    ***REMOVED***
+    }
 
-    getSongLeaderboard(): ServerDocument[] ***REMOVED***
+    getSongLeaderboard(): ServerDocument[] {
         return this.songLeaderboard;
-    ***REMOVED***
+    }
 
-    getTimeLeaderboard(): ServerDocument[] ***REMOVED***
+    getTimeLeaderboard(): ServerDocument[] {
         return this.timeLeaderboard;
-    ***REMOVED***
-***REMOVED***
+    }
+}

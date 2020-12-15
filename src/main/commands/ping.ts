@@ -1,17 +1,17 @@
-import ***REMOVED*** Command ***REMOVED*** from 'discord-akairo';
-import ***REMOVED*** Message ***REMOVED*** from 'discord.js';
+import { Command } from 'discord-akairo';
+import { Message } from 'discord.js';
 
-export default class PingCommand extends Command ***REMOVED***
-    constructor() ***REMOVED***
-        super('ping', ***REMOVED***
+export default class PingCommand extends Command {
+    constructor() {
+        super('ping', {
            aliases: ['ping'],
            category: 'Util',
            description: 'Pong!',
            clientPermissions: ['SEND_MESSAGES']
-        ***REMOVED***);
-    ***REMOVED***
+        });
+    }
 
-    exec(message: Message): Promise<Message> ***REMOVED***
+    exec(message: Message): Promise<Message> {
         return message.reply('Pong!');
-    ***REMOVED***
-***REMOVED***
+    }
+}

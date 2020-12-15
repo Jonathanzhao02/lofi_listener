@@ -1,67 +1,67 @@
-import mongoose, ***REMOVED*** Document ***REMOVED*** from 'mongoose';
-const ***REMOVED*** BOT_PREFIX ***REMOVED*** = require('../../../config.json');
+import mongoose, { Document } from 'mongoose';
+const { BOT_PREFIX } = require('../../../config.json');
 const Schema = mongoose.Schema;
 
 const ServerSchema = new Schema(
-    ***REMOVED***
-        id: ***REMOVED***
+    {
+        id: {
             type: String,
             required: true
-        ***REMOVED***,
-        settings: ***REMOVED***
-            prefix: ***REMOVED***
+        },
+        settings: {
+            prefix: {
                 type: String,
                 minlength: 1,
                 maxlength: 1,
                 default: BOT_PREFIX
-            ***REMOVED***,
-            notificationsOn: ***REMOVED***
+            },
+            notificationsOn: {
                 type: Boolean,
                 default: true
-            ***REMOVED***,
-            notificationChannel: ***REMOVED***
+            },
+            notificationChannel: {
                 type: String,
                 default: ''
-            ***REMOVED***,
-            useGifs: ***REMOVED***
+            },
+            useGifs: {
                 type: Boolean,
                 default: true
-            ***REMOVED***
-        ***REMOVED***,
-        data: ***REMOVED***
-            totalTime: ***REMOVED***
+            }
+        },
+        data: {
+            totalTime: {
                 type: Number,
                 min: 0,
                 default: 0
-            ***REMOVED***,
-            totalSongs: ***REMOVED***
+            },
+            totalSongs: {
                 type: Number,
                 min: 0,
                 default: 0
-            ***REMOVED***
-        ***REMOVED***
-    ***REMOVED***,
-    ***REMOVED***
+            }
+        }
+    },
+    {
         minimize: false
-    ***REMOVED***
+    }
 );
 
-export interface ServerSettings ***REMOVED***
+export interface ServerSettings {
     prefix?: string,
     notificationsOn?: boolean,
     notificationChannel?: string,
     useGifs?: boolean
-***REMOVED***
+}
 
-export interface ServerData ***REMOVED***
+export interface ServerData {
     totalTime?: number,
     totalSongs?: number
-***REMOVED***
+}
 
-export interface ServerDocument extends Document ***REMOVED***
+export interface ServerDocument extends Document {
     id: string,
     settings: ServerSettings,
     data: ServerData
-***REMOVED***
+}
 
 export default mongoose.model<ServerDocument>('server', ServerSchema);

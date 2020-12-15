@@ -1,15 +1,15 @@
-import ***REMOVED*** Inhibitor ***REMOVED*** from 'discord-akairo';
-import ***REMOVED*** Message ***REMOVED*** from 'discord.js';
+import { Inhibitor } from 'discord-akairo';
+import { Message } from 'discord.js';
 
-export default class BlacklistInhibitor extends Inhibitor ***REMOVED***
-    constructor() ***REMOVED***
-        super('blacklist', ***REMOVED***
+export default class BlacklistInhibitor extends Inhibitor {
+    constructor() {
+        super('blacklist', {
             reason: 'blacklist'
-        ***REMOVED***);
-    ***REMOVED***
+        });
+    }
 
-    exec(message: Message): boolean ***REMOVED***
+    exec(message: Message): boolean {
         const blacklist = [];
         return blacklist.includes(message.author.id);
-    ***REMOVED***
-***REMOVED***
+    }
+}

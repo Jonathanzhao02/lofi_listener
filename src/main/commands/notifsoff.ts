@@ -1,28 +1,28 @@
-import ***REMOVED*** Command ***REMOVED*** from 'discord-akairo';
-import ***REMOVED*** Message ***REMOVED*** from 'discord.js';
+import { Command } from 'discord-akairo';
+import { Message } from 'discord.js';
 import LofiClient from '../LofiClient';
 
-export default class NotifsOffCommand extends Command ***REMOVED***
+export default class NotifsOffCommand extends Command {
     client: LofiClient;
 
-    constructor() ***REMOVED***
-        super('notifsoff', ***REMOVED***
+    constructor() {
+        super('notifsoff', {
            aliases: ['stopnotifications', 'notifsoff', 'notificationsoff'],
            category: 'Util',
            description: 'Turn off notifications when the song changes.',
            channel: 'guild',
            clientPermissions: ['SEND_MESSAGES'],
            cooldown: 1000
-        ***REMOVED***);
-    ***REMOVED***
+        });
+    }
 
-    async exec(message: Message): Promise<Message> ***REMOVED***
+    async exec(message: Message): Promise<Message> {
         const server = this.client.getServer(message.guild.id);
 
-        if (server.getNotificationsOn()) ***REMOVED***
+        if (server.getNotificationsOn()) {
             server.setNotificationsOn(false);
             await this.client.provider.set(message.guild.id, 'settings.notificationsOn', false);
             return message.channel.send('❌ Will no longer send updates.');
-        ***REMOVED***
-    ***REMOVED***
-***REMOVED***
+        }
+    }
+}

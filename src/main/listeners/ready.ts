@@ -1,14 +1,14 @@
-import ***REMOVED*** Listener ***REMOVED*** from 'discord-akairo';
+import { Listener } from 'discord-akairo';
 
-export default class ReadyListener extends Listener ***REMOVED***
-    constructor() ***REMOVED***
-        super('ready', ***REMOVED***
+export default class ReadyListener extends Listener {
+    constructor() {
+        super('ready', {
             emitter: 'client',
             event: 'ready'
-        ***REMOVED***);
-    ***REMOVED***
+        });
+    }
 
-    exec(): void ***REMOVED***
+    exec(): void {
         console.log('Bot logged in');
-    ***REMOVED***
-***REMOVED***
+    }
+}

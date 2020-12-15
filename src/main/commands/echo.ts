@@ -1,17 +1,17 @@
-import ***REMOVED*** Command ***REMOVED*** from 'discord-akairo';
-import ***REMOVED*** Message ***REMOVED*** from 'discord.js';
+import { Command } from 'discord-akairo';
+import { Message } from 'discord.js';
 
-export default class EchoCommand extends Command ***REMOVED***
-    constructor() ***REMOVED***
-        super('echo', ***REMOVED***
+export default class EchoCommand extends Command {
+    constructor() {
+        super('echo', {
            aliases: ['echo'],
            category: 'admin',
            description: 'Echo! echo! echo.',
            ownerOnly: true
-        ***REMOVED***);
-    ***REMOVED***
+        });
+    }
 
-    exec(message: Message): void ***REMOVED***
+    exec(message: Message): void {
         console.log(message.content);
-    ***REMOVED***
-***REMOVED***
+    }
+}

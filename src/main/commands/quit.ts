@@ -1,24 +1,24 @@
-import ***REMOVED*** Command ***REMOVED*** from 'discord-akairo';
-import ***REMOVED*** Message ***REMOVED*** from 'discord.js';
+import { Command } from 'discord-akairo';
+import { Message } from 'discord.js';
 import LofiClient from '../LofiClient';
 
-export default class PingCommand extends Command ***REMOVED***
+export default class PingCommand extends Command {
     client: LofiClient;
 
-    constructor() ***REMOVED***
-        super('quit', ***REMOVED***
+    constructor() {
+        super('quit', {
            aliases: ['quit', 'exit'],
            category: 'admin',
            description: 'Shut down the bot.',
            ownerOnly: true,
            channel: 'dm'
-        ***REMOVED***);
-    ***REMOVED***
+        });
+    }
 
-    async exec(message: Message): Promise<void> ***REMOVED***
+    async exec(message: Message): Promise<void> {
         await message.reply('Quitting');
         await this.client.saveStats();
         console.log('Logging out');
         return this.client.destroy();
-    ***REMOVED***
-***REMOVED***
+    }
+}

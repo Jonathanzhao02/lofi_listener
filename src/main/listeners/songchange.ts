@@ -1,24 +1,24 @@
-import ***REMOVED*** Listener ***REMOVED*** from 'discord-akairo';
-import ***REMOVED*** Message ***REMOVED*** from 'discord.js';
+import { Listener } from 'discord-akairo';
+import { Message } from 'discord.js';
 import LofiClient from '../LofiClient';
 import Server from '../Server';
 
-export default class SongChangeListener extends Listener ***REMOVED***
+export default class SongChangeListener extends Listener {
     client: LofiClient;
 
-    constructor() ***REMOVED***
-        super('songchange', ***REMOVED***
+    constructor() {
+        super('songchange', {
             emitter: 'songChangeListener',
             event: 'change'
-        ***REMOVED***);
-    ***REMOVED***
+        });
+    }
 
-    exec(): void ***REMOVED***
+    exec(): void {
         this.client.pushLastSong();
 
-        this.client.foreachServer((server: Server): void => ***REMOVED***
+        this.client.foreachServer((server: Server): void => {
             if (server.getConnected()) server.incrementSongsPlayed();
-            if (server.getNotificationsOn() && server.getConnected()) ***REMOVED***
+            if (server.getNotificationsOn() && server.getConnected()) {
                 const cmdHandler = this.client.getCommandHandler();
                 cmdHandler.runCommand(
                         new Message(
@@ -29,7 +29,7 @@ export default class SongChangeListener extends Listener ***REMOVED***
                     cmdHandler.findCommand('nowplaying'),
                     null
                 );
-            ***REMOVED***
-        ***REMOVED***);
-    ***REMOVED***
-***REMOVED***
+            }
+        });
+    }
+}

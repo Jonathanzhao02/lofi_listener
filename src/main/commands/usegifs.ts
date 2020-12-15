@@ -1,28 +1,28 @@
-import ***REMOVED*** Command ***REMOVED*** from 'discord-akairo';
-import ***REMOVED*** Message ***REMOVED*** from 'discord.js';
+import { Command } from 'discord-akairo';
+import { Message } from 'discord.js';
 import LofiClient from '../LofiClient';
 
-export default class UseGifsCommand extends Command ***REMOVED***
+export default class UseGifsCommand extends Command {
     client: LofiClient;
 
-    constructor() ***REMOVED***
-        super('usegifs', ***REMOVED***
+    constructor() {
+        super('usegifs', {
            aliases: ['usegifs', 'gifs', 'gif'],
            category: 'Util',
            description: 'Use gifs for file attachments.',
            channel: 'guild',
            clientPermissions: ['SEND_MESSAGES'],
            cooldown: 1000
-        ***REMOVED***);
-    ***REMOVED***
+        });
+    }
 
-    async exec(message: Message): Promise<Message> ***REMOVED***
+    async exec(message: Message): Promise<Message> {
         const server = this.client.getServer(message.guild.id);
 
-        if (!server.getUseGifs()) ***REMOVED***
+        if (!server.getUseGifs()) {
             server.setUseGifs(true);
             await this.client.provider.set(message.guild.id, 'settings.useGifs', true);
             return message.channel.send('✅ Will now send gifs.');
-        ***REMOVED***
-    ***REMOVED***
-***REMOVED***
+        }
+    }
+}

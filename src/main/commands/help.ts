@@ -1,33 +1,33 @@
-import ***REMOVED*** Command ***REMOVED*** from 'discord-akairo';
-import ***REMOVED*** Message, MessageEmbed ***REMOVED*** from 'discord.js';
+import { Command } from 'discord-akairo';
+import { Message, MessageEmbed } from 'discord.js';
 
-export default class HelpCommand extends Command ***REMOVED***
-	constructor() ***REMOVED***
-		super('help', ***REMOVED***
+export default class HelpCommand extends Command {
+	constructor() {
+		super('help', {
           aliases: ['help', 'h'],
           category: 'Util',
           args: [
-            ***REMOVED***
+            {
               id: 'command',
               type: 'commandAlias',
               default: null
-            ***REMOVED***
+            }
           ],
           description: 'Displays information about a command.'
-		***REMOVED***);
-	***REMOVED***
+		});
+	}
 
-	exec (message: Message, ***REMOVED*** command ***REMOVED***): Promise<Message> ***REMOVED***
+	exec (message: Message, { command }): Promise<Message> {
         const embed = new MessageEmbed().setColor(0x6577b7);
 
-		if (command && command.categoryID.valueOf() !== 'admin') ***REMOVED***
+		if (command && command.categoryID.valueOf() !== 'admin') {
             embed
                 .setColor(3447003)
                 .addField(
                     '❯ Description',
                     command.description
                 );
-		***REMOVED*** else ***REMOVED***
+		} else {
 			embed
 				.setTitle('❯ Commands')
 				.setDescription(
@@ -37,19 +37,19 @@ export default class HelpCommand extends Command ***REMOVED***
 					`
 				);
 
-			for (const category of this.handler.categories.values()) ***REMOVED***
+			for (const category of this.handler.categories.values()) {
                 if (category.id.valueOf() === 'admin') continue;
 				embed.addField(
-					`❯ $***REMOVED***category.id.replace(/(\b\w)/gi, (lc) =>
-						lc.toUpperCase())***REMOVED*** - $***REMOVED***category.size***REMOVED***`,
-					`$***REMOVED***category
+					`❯ ${category.id.replace(/(\b\w)/gi, (lc) =>
+						lc.toUpperCase())} - ${category.size}`,
+					`${category
 						.filter((cmd) => cmd.aliases.length > 0)
-						.map((cmd) => `\`$***REMOVED***cmd.aliases[0]***REMOVED***\``)
-						.join(', ')***REMOVED***`
+						.map((cmd) => `\`${cmd.aliases[0]}\``)
+						.join(', ')}`
 				);
-			***REMOVED***
-		***REMOVED***
+			}
+		}
 
 		return message.channel.send(embed);
-	***REMOVED***
-***REMOVED***
+	}
+}

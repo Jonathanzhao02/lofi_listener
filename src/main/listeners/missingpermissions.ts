@@ -1,24 +1,24 @@
-import ***REMOVED*** Command, Listener ***REMOVED*** from 'discord-akairo';
-import ***REMOVED*** Message ***REMOVED*** from 'discord.js';
+import { Command, Listener } from 'discord-akairo';
+import { Message } from 'discord.js';
 import LofiClient from '../LofiClient';
 
-export default class SongChangeListener extends Listener ***REMOVED***
+export default class SongChangeListener extends Listener {
     client: LofiClient;
 
-    constructor() ***REMOVED***
-        super('missingpermissions', ***REMOVED***
+    constructor() {
+        super('missingpermissions', {
             emitter: 'commandHandler',
             event: 'missingPermissions'
-        ***REMOVED***);
-    ***REMOVED***
+        });
+    }
 
-    exec(message: Message, command: Command, type: string, missing: string[]): void ***REMOVED***
+    exec(message: Message, command: Command, type: string, missing: string[]): void {
         if (!missing) return;
-        try ***REMOVED***
-            message.reply(`Please add these permissions for \`$***REMOVED***command.id***REMOVED***\` to work: \`$***REMOVED***missing.join(', ')***REMOVED***\``);
-        ***REMOVED*** catch (err) ***REMOVED***
+        try {
+            message.reply(`Please add these permissions for \`${command.id}\` to work: \`${missing.join(', ')}\``);
+        } catch (err) {
             console.log(err);
             return;
-        ***REMOVED***
-    ***REMOVED***
-***REMOVED***
+        }
+    }
+}

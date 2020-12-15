@@ -37,7 +37,7 @@ cv2.drawContours(thresh, used_contours,
 # cv2.imwrite("temp/contours.png", image)
 # cv2.imwrite("temp/processed.png", thresh)
 
-custom_oem_psm_config = r'--oem 0 --psm 7 --tessdata-dir /Users/mac/Downloads'
+custom_oem_psm_config = r'--oem 0 --psm 7' # --tessdata-dir /Users/mac/Downloads'
 text = pytesseract.image_to_string(thresh, lang='eng', config=custom_oem_psm_config)
 print(text)
 

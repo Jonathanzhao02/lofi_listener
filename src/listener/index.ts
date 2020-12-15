@@ -1,168 +1,168 @@
 import memjs from 'memjs';
-import ***REMOVED*** exec ***REMOVED*** from 'child_process';
-import ***REMOVED*** EventEmitter ***REMOVED*** from 'events';
-import ***REMOVED*** URL ***REMOVED*** from 'url';
+import { exec } from 'child_process';
+import { EventEmitter } from 'events';
+import { URL } from 'url';
 import * as fs from 'fs';
 
-const ***REMOVED*** MEMCACHIER_USERNAME, MEMCACHIER_PASSWORD, MEMCACHIER_SERVERS ***REMOVED*** = require('../../config.json');
+const { MEMCACHIER_USERNAME, MEMCACHIER_PASSWORD, MEMCACHIER_SERVERS } = require('../../config.json');
 
-function extractSong(text: string): string ***REMOVED***
+function extractSong(text: string): string {
     const lines = text.split('\n');
     
-    for (let line of lines) ***REMOVED***
-        if (line.indexOf('-') > 0) ***REMOVED***
+    for (let line of lines) {
+        if (line.indexOf('-') > 0) {
             return line.trim();
-        ***REMOVED***
-    ***REMOVED***
-***REMOVED***
+        }
+    }
+}
 
-function isValidUrl(url: string): boolean ***REMOVED***
-    try ***REMOVED***
+function isValidUrl(url: string): boolean {
+    try {
         new URL(url);
         return true;
-    ***REMOVED*** catch (err) ***REMOVED***
+    } catch (err) {
         return false;
-    ***REMOVED***
-***REMOVED***
+    }
+}
 
-function extractLatestGif(url: string): Promise<boolean> ***REMOVED***
-    return new Promise<boolean>((resolve) => ***REMOVED***
-        exec(`ffmpeg -i $***REMOVED***url***REMOVED*** -hide_banner -loglevel fatal -vframes 30 -vf fps=15,scale=960:-1,select='not(mod(n\\,3))' -y temp/latest.gif`, (err, stdout, stderr) => ***REMOVED***
-            if (err || stderr) ***REMOVED***
-                console.log(`err: $***REMOVED***err ? err : stderr***REMOVED***`);
+function extractLatestGif(url: string): Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
+        exec(`ffmpeg -i ${url} -hide_banner -loglevel fatal -vframes 30 -vf fps=15,scale=960:-1,select='not(mod(n\\,3))' -y temp/latest.gif`, (err, stdout, stderr) => {
+            if (err || stderr) {
+                console.log(`err: ${err ? err : stderr}`);
                 resolve(false);
-            ***REMOVED*** else ***REMOVED***
+            } else {
                 resolve(true);
-            ***REMOVED***
-        ***REMOVED***);
-    ***REMOVED***);
-***REMOVED***
+            }
+        });
+    });
+}
 
-function extractLatestFrame(url: string): Promise<boolean> ***REMOVED***
-    return new Promise<boolean>((resolve) => ***REMOVED***
-        exec(`ffmpeg -i $***REMOVED***url***REMOVED*** -hide_banner -loglevel fatal -vframes 1 -y temp/latest.jpg`, (err, stdout, stderr) => ***REMOVED***
-            if (err || stderr) ***REMOVED***
-                console.log(`err: $***REMOVED***err ? err : stderr***REMOVED***`);
+function extractLatestFrame(url: string): Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
+        exec(`ffmpeg -i ${url} -hide_banner -loglevel fatal -vframes 1 -y temp/latest.jpg`, (err, stdout, stderr) => {
+            if (err || stderr) {
+                console.log(`err: ${err ? err : stderr}`);
                 resolve(false);
-            ***REMOVED*** else ***REMOVED***
+            } else {
                 resolve(true);
-            ***REMOVED***
-        ***REMOVED***);
-    ***REMOVED***);
-***REMOVED***
+            }
+        });
+    });
+}
 
-function extractLatestText(url: string): Promise<string> ***REMOVED***
-    return new Promise<string>((resolve, reject) => ***REMOVED***
-        extractLatestFrame(url).then(hasNewestFrame => ***REMOVED***
-            if (hasNewestFrame) ***REMOVED***
-                exec('python tesseract-backend/main.py temp/latest.jpg', (err, stdout, stderr) => ***REMOVED***
-                    if (err || stderr) ***REMOVED***
-                        console.log(`err: $***REMOVED***err ? err : stderr***REMOVED***`);
+function extractLatestText(url: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+        extractLatestFrame(url).then(hasNewestFrame => {
+            if (hasNewestFrame) {
+                exec('python tesseract-backend/main.py temp/latest.jpg', (err, stdout, stderr) => {
+                    if (err || stderr) {
+                        console.log(`err: ${err ? err : stderr}`);
                         reject('Failed to run tesseract');
-                    ***REMOVED*** else ***REMOVED***
+                    } else {
                         resolve(extractSong(stdout));
-                    ***REMOVED***
-                ***REMOVED***);
-            ***REMOVED*** else ***REMOVED***
+                    }
+                });
+            } else {
                 reject('Could not extract frame');
-            ***REMOVED***
-        ***REMOVED***);
-    ***REMOVED***);
-***REMOVED***
+            }
+        });
+    });
+}
 
-function checkValue(client, name: string, timeout = 10000, interval = 100): Promise<Buffer> ***REMOVED***
-    return new Promise((resolve, reject) => ***REMOVED***
+function checkValue(client, name: string, timeout = 10000, interval = 100): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
         const startTime = Date.now();
-        const check = function(val: ***REMOVED*** value: Buffer, flags: Buffer ***REMOVED***) ***REMOVED***
-            if (val?.value) ***REMOVED***
+        const check = function(val: { value: Buffer, flags: Buffer }) {
+            if (val?.value) {
                 resolve(val.value);
-            ***REMOVED*** else ***REMOVED***
+            } else {
                 if (Date.now() - startTime > timeout) reject('Timed out');
                 else setTimeout(() => client.get(name).then(check), interval);
-            ***REMOVED***
-        ***REMOVED***;
+            }
+        };
 
         client.get(name).then(check);
-    ***REMOVED***);
-***REMOVED***
+    });
+}
 
-export default class SongChangeListener extends EventEmitter ***REMOVED***
+export default class SongChangeListener extends EventEmitter {
     private url: string;
     private processId: ReturnType<typeof setTimeout>
 
     private currentSong: string;
 
-    constructor(url: string) ***REMOVED***
+    constructor(url: string) {
         super();
         if (isValidUrl(url)) this.url = url;
         else throw Error('Invalid URL supplied to SongChangeListener!');
-    ***REMOVED***
+    }
 
-    init(): void ***REMOVED***
+    init(): void {
         if (!fs.existsSync('temp')) fs.mkdirSync('temp');
-        extractLatestText(this.url).then(song => ***REMOVED***
+        extractLatestText(this.url).then(song => {
             this.currentSong = song || 'Unknown';
-            extractLatestGif(this.url).then(hasSavedGif => ***REMOVED***
+            extractLatestGif(this.url).then(hasSavedGif => {
                 this.emit('change', this.currentSong);
                 this.processId = setInterval(this.loop.bind(this), 5000);
-            ***REMOVED***);
-        ***REMOVED***).catch(err => ***REMOVED***
+            });
+        }).catch(err => {
             console.log(err);
-        ***REMOVED***);
-    ***REMOVED***
+        });
+    }
 
-    loop(): void ***REMOVED***
+    loop(): void {
         fs.copyFileSync('temp/latest.jpg', 'temp/latest_backup.jpg');
-        extractLatestText(this.url).then(song => ***REMOVED***
+        extractLatestText(this.url).then(song => {
             if (!song) return;
             this.currentSong = song;
-            extractLatestGif(this.url).then(hasSavedGif => ***REMOVED***
+            extractLatestGif(this.url).then(hasSavedGif => {
                 this.emit('change', this.currentSong);
-            ***REMOVED***);
-        ***REMOVED***).catch(err => ***REMOVED***
+            });
+        }).catch(err => {
             console.log(err);
-        ***REMOVED***);
-    ***REMOVED***
+        });
+    }
 
-    end(): void ***REMOVED***
+    end(): void {
         clearInterval(this.processId);
-    ***REMOVED***
-***REMOVED***
+    }
+}
 
-async function main(): Promise<void> ***REMOVED***
-    const client = memjs.Client.create(MEMCACHIER_SERVERS, ***REMOVED***
+async function main(): Promise<void> {
+    const client = memjs.Client.create(MEMCACHIER_SERVERS, {
         username: MEMCACHIER_USERNAME,
         password: MEMCACHIER_PASSWORD
-    ***REMOVED***);
+    });
     const url = (await checkValue(client, 'stream_url')).toString();
     const changeListener = new SongChangeListener(url);
     changeListener.init();
 
-    changeListener.on('change', (current) => ***REMOVED***
-        client.set('current_song', current, ***REMOVED*** expires: 30 ***REMOVED***);
-        client.set('latest.jpg', fs.readFileSync('temp/latest.jpg'), ***REMOVED*** expires: 30 ***REMOVED***);
-        client.set('latest.gif', fs.readFileSync('temp/latest.gif'), ***REMOVED*** expires: 30 ***REMOVED***);
-    ***REMOVED***);
+    changeListener.on('change', (current) => {
+        client.set('current_song', current, { expires: 30 });
+        client.set('latest.jpg', fs.readFileSync('temp/latest.jpg'), { expires: 30 });
+        client.set('latest.gif', fs.readFileSync('temp/latest.gif'), { expires: 30 });
+    });
 
-    process.on('SIGINT', () => ***REMOVED***
+    process.on('SIGINT', () => {
         changeListener.end();
         console.log('Exiting');
         process.exit(0);
-    ***REMOVED***);
+    });
 
-    process.on('uncaughtException', err => ***REMOVED***
+    process.on('uncaughtException', err => {
         console.log(err);
         changeListener.end();
         console.log('Exiting');
         process.exit(0);
-    ***REMOVED***);
+    });
 
-    process.on('unhandledRejection', err => ***REMOVED***
+    process.on('unhandledRejection', err => {
         console.log(err);
         changeListener.end();
         console.log('Exiting');
         process.exit(0);
-    ***REMOVED***);
-***REMOVED***
+    });
+}
 
 main();
