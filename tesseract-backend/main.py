@@ -38,7 +38,7 @@ for cnt in contours:
 cv2.drawContours(image, used_contours,
                 -1, 255, -1)
 
-custom_oem_psm_config = r'--oem 1 --psm 7' # --tessdata-dir /Users/mac/Downloads/'
+custom_oem_psm_config = r'--oem 0 --psm 7' # --tessdata-dir /Users/mac/Downloads/'
 text = pytesseract.image_to_string(image, lang='eng', config=custom_oem_psm_config)
 print(text)
 
