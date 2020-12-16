@@ -14,7 +14,7 @@ const LEADERBOARD_UPDATE_INTERVAL = Number(process.env['LEADERBOARD_UPDATE_INTER
 const MAX_LEADERBOARD_POSITIONS = Number(process.env['MAX_LEADERBOARD_POSITIONS']);
 const MAX_LAST_SONGS = Number(process.env['MAX_LAST_SONGS']);
 
-const isDevelopment = process.env.NODE_ENV.valueOf() !== 'production';
+const isDevelopment = process.env.NODE_ENV !== 'production';
 
 export default class LofiClient extends AkairoClient {
     private static singleton: LofiClient;

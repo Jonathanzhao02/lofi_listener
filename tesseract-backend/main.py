@@ -1,4 +1,5 @@
 import pytesseract
+import math
 import cv2
 import sys
 import os
@@ -11,34 +12,34 @@ else:
 try:
     CV_THRESH = int(os.environ["CV_THRESH"])
 except:
-    CV_THRESH = 240
+    CV_THRESH = 190 # for 480p
+    CV_THRESH = 240 # for 1080p
+
+Y_CROP_RATIO = 50 / 1080
+X_CROP_RATIO = 500 / 1920
 
 image = cv2.imread(file_path)
-image = image[0:50,:,:]
+[im_h,im_w,im_c] = image.shape
+image = image[0:math.floor(Y_CROP_RATIO * im_h),:,:]
 
-gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-thresh = cv2.threshold(gray, CV_THRESH, 255, cv2.THRESH_BINARY)[1]
-thresh = 255 - thresh
+image = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+image = cv2.threshold(image, CV_THRESH, 255, cv2.THRESH_BINARY)[1]
+image = 255 - image
 
-edged = cv2.Canny(thresh, 255, 0)
-contours, hierarchy = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+contours, hierarchy = cv2.findContours(255 - image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 used_contours = []
 
 for cnt in contours:
     (x,y,w,h) = cv2.boundingRect(cnt)
-    cv2.rectangle(image,(x,y),(x+w,y+h),(0,255,0),1)
-
-    if x < 500:
+    
+    if x < X_CROP_RATIO * im_w:
         used_contours.append(cnt)
 
-cv2.drawContours(thresh, used_contours,
+cv2.drawContours(image, used_contours,
                 -1, 255, -1)
 
-# cv2.imwrite("temp/contours.png", image)
-# cv2.imwrite("temp/processed.png", thresh)
-
-custom_oem_psm_config = r'--oem 0 --psm 7' # --tessdata-dir /Users/mac/Downloads'
-text = pytesseract.image_to_string(thresh, lang='eng', config=custom_oem_psm_config)
+custom_oem_psm_config = r'--oem 1 --psm 7' # --tessdata-dir /Users/mac/Downloads/'
+text = pytesseract.image_to_string(image, lang='eng', config=custom_oem_psm_config)
 print(text)
 
 """image_src = cv2.imread("example.png")

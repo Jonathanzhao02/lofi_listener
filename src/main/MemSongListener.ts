@@ -65,9 +65,9 @@ async function fetchResources(client): Promise<boolean> {
         if (fs.existsSync('temp/latest.jpg')) fs.copyFileSync('temp/latest.jpg', 'temp/latest_old.jpg');
         const gifBuffType = await ft.fromBuffer(gifBuffer);
         const jpgBuffType = await ft.fromBuffer(jpgBuffer);
-        if (gifBuffType?.ext.valueOf() === 'gif') fs.writeFileSync('temp/latest.gif', gifBuffer);
-        if (jpgBuffType?.ext.valueOf() === 'jpg') fs.writeFileSync('temp/latest.jpg', jpgBuffer);
-        return gifBuffType?.ext.valueOf() === 'gif' && jpgBuffType?.ext.valueOf() === 'jpg';
+        if (gifBuffType?.ext === 'gif') fs.writeFileSync('temp/latest.gif', gifBuffer);
+        if (jpgBuffType?.ext === 'jpg') fs.writeFileSync('temp/latest.jpg', jpgBuffer);
+        return gifBuffType?.ext === 'gif' && jpgBuffType?.ext === 'jpg';
     }
 
     return false;

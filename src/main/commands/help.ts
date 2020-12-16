@@ -20,7 +20,7 @@ export default class HelpCommand extends Command {
 	exec (message: Message, { command }): Promise<Message> {
         const embed = new MessageEmbed().setColor(0x6577b7);
 
-		if (command && command.categoryID.valueOf() !== 'admin') {
+		if (command && command.categoryID !== 'admin') {
             embed
                 .setColor(3447003)
                 .addField(
@@ -38,7 +38,7 @@ export default class HelpCommand extends Command {
 				);
 
 			for (const category of this.handler.categories.values()) {
-                if (category.id.valueOf() === 'admin') continue;
+                if (category.id === 'admin') continue;
 				embed.addField(
 					`❯ ${category.id.replace(/(\b\w)/gi, (lc) =>
 						lc.toUpperCase())} - ${category.size}`,

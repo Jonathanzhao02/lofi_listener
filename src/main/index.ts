@@ -9,14 +9,15 @@ const MEMCACHIER_SERVERS = process.env['MEMCACHIER_SERVERS'];
 const TEST_BOT_TOKEN = process.env['TEST_BOT_TOKEN'];
 const BOT_TOKEN = process.env['BOT_TOKEN'];
 const STREAM_URL = process.env['STREAM_URL'];
+const VID_QUALITY = process.env['VID_QUALITY'];
 
-const isDevelopment = process.env.NODE_ENV.valueOf() !== 'production';
+const isDevelopment = process.env.NODE_ENV !== 'production';
 
 function getBestFormat(url: string): Promise<string> {
     return new Promise<string>(resolve => {
         getInfo(url).then(info => {
             let formats = info.formats;
-            const filter = (format: videoFormat): boolean => format.audioBitrate && format.isHLS;
+            const filter = (format: videoFormat): boolean => format.audioBitrate && format.isHLS && format.qualityLabel === VID_QUALITY;
             formats = formats
                 .filter(filter)
                 .sort((a, b) => b.audioBitrate - a.audioBitrate);
