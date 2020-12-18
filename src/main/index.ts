@@ -1,5 +1,7 @@
 import { getInfo, videoFormat } from 'ytdl-core';
 import memjs from 'memjs';
+import { URL } from 'url';
+import * as https from 'https';
 import MemSongListener from './MemSongListener';
 import LofiClient from './LofiClient';
 
@@ -12,6 +14,25 @@ const STREAM_URL = process.env['STREAM_URL'];
 const VID_QUALITY = process.env['VID_QUALITY'];
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
+
+function isValidUrl(url: string): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+        try {
+            new URL(url);
+
+            https.get(url, res => {
+                if (res.statusCode < 300 && res.statusCode >= 200) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            });
+
+        } catch (err) {
+            resolve(false);
+        }
+    });
+}
 
 function getBestFormat(url: string): Promise<string> {
     return new Promise<string>(resolve => {
@@ -27,7 +48,12 @@ function getBestFormat(url: string): Promise<string> {
 }
 
 async function main(): Promise<void> {
-    const url = await getBestFormat(STREAM_URL);
+    let url = '';
+
+    do {
+        url = await getBestFormat(STREAM_URL);
+    } while (!(await isValidUrl(url)));
+
     const memjsClient = memjs.Client.create(MEMCACHIER_SERVERS, {
         username: MEMCACHIER_USERNAME,
         password: MEMCACHIER_PASSWORD

@@ -48,15 +48,6 @@ function checkValue(client, name: string, timeout = 10000, interval = 100): Prom
     });
 }
 
-function isValidUrl(url: string): boolean {
-    try {
-        new URL(url);
-        return true;
-    } catch (err) {
-        return false;
-    }
-}
-
 async function fetchResources(client): Promise<boolean> {
     const gifBuffer = await checkValue(client, 'latest.gif');
     const jpgBuffer = await checkValue(client, 'latest.jpg');
@@ -84,8 +75,7 @@ export default class MemSongListener extends EventEmitter {
 
     constructor(client, url: string) {
         super();
-        if (isValidUrl(url)) this.url = url;
-        else throw Error('Invalid URL supplied to MemSongListener!');
+        this.url = url;
         this.client = client;
     }
 

@@ -1,7 +1,6 @@
 import memjs from 'memjs';
 import { exec } from 'child_process';
 import { EventEmitter } from 'events';
-import { URL } from 'url';
 import * as fs from 'fs';
 
 const MEMCACHIER_USERNAME = process.env['MEMCACHIER_USERNAME'];
@@ -15,15 +14,6 @@ function extractSong(text: string): string {
         if (line.indexOf('-') > 0) {
             return line.trim();
         }
-    }
-}
-
-function isValidUrl(url: string): boolean {
-    try {
-        new URL(url);
-        return true;
-    } catch (err) {
-        return false;
     }
 }
 
@@ -96,8 +86,7 @@ export default class SongChangeListener extends EventEmitter {
 
     constructor(url: string) {
         super();
-        if (isValidUrl(url)) this.url = url;
-        else throw Error('Invalid URL supplied to SongChangeListener!');
+        this.url = url;
     }
 
     init(): void {
@@ -136,7 +125,16 @@ async function main(): Promise<void> {
         username: MEMCACHIER_USERNAME,
         password: MEMCACHIER_PASSWORD
     });
-    const url = (await checkValue(client, 'stream_url')).toString();
+    let url = '';
+
+    do {
+        try {
+            url = (await checkValue(client, 'stream_url')).toString();
+        } catch (e) {
+            console.log(e);
+        }
+    } while (!url);
+
     const changeListener = new SongChangeListener(url);
     changeListener.init();
 
