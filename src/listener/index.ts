@@ -78,28 +78,46 @@ function checkValue(client, name: string, timeout = 10000, interval = 100): Prom
     });
 }
 
+async function requireValue(client, name: string, tries = Number.POSITIVE_INFINITY): Promise<Buffer> {
+    let value;
+    let totalTries = 0;
+
+    do {
+        try {
+            value = await checkValue(client, name);
+        } catch (ex) {
+            tries++;
+        }
+    } while(!value && totalTries < tries);
+
+    return value;
+}
+
 export default class SongChangeListener extends EventEmitter {
     private url: string;
+    private client;
     private processId: ReturnType<typeof setTimeout>
+    private processId_2: ReturnType<typeof setTimeout>
 
     private currentSong: string;
 
-    constructor(url: string) {
+    constructor(client) {
         super();
-        this.url = url;
+        this.client = client;
     }
 
-    init(): void {
+    async init(): Promise<void> {
+        this.url = (await requireValue(this.client, 'stream_url')).toString();
+
         if (!fs.existsSync('temp')) fs.mkdirSync('temp');
-        extractLatestText(this.url).then(song => {
-            this.currentSong = song || 'Unknown';
-            extractLatestGif(this.url).then(hasSavedGif => {
-                this.emit('change', this.currentSong);
-                this.processId = setInterval(this.loop.bind(this), 5000);
-            });
-        }).catch(err => {
-            console.log(err);
-        });
+        const song = await extractLatestText(this.url).catch(() => {});
+        this.currentSong = song || 'Unknown';
+        await extractLatestGif(this.url);
+        this.emit('change', this.currentSong);
+        this.processId = setInterval(this.loop.bind(this), 5000);
+        this.processId_2 = setInterval(async () => {
+            this.url = (await requireValue(this.client, 'stream_url')).toString();
+        }, 3600000 / 2);
     }
 
     loop(): void {
@@ -117,6 +135,7 @@ export default class SongChangeListener extends EventEmitter {
 
     end(): void {
         clearInterval(this.processId);
+        clearInterval(this.processId_2);
     }
 }
 
@@ -125,17 +144,8 @@ async function main(): Promise<void> {
         username: MEMCACHIER_USERNAME,
         password: MEMCACHIER_PASSWORD
     });
-    let url = '';
 
-    do {
-        try {
-            url = (await checkValue(client, 'stream_url')).toString();
-        } catch (e) {
-            console.log(e);
-        }
-    } while (!url);
-
-    const changeListener = new SongChangeListener(url);
+    const changeListener = new SongChangeListener(client);
     changeListener.init();
 
     changeListener.on('change', (current) => {
