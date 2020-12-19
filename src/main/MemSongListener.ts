@@ -1,8 +1,13 @@
 import { EventEmitter } from 'events';
+import { URL } from 'url';
+import * as https from 'https';
 import * as fs from 'fs';
 import * as ft from 'file-type';
+import { getInfo, videoFormat } from 'ytdl-core';
 
 const CHANGE_THRESHOLD = Number(process.env['CHANGE_THRESHOLD']);
+const VID_QUALITY = process.env['VID_QUALITY'];
+const STREAM_URL = process.env['STREAM_URL'];
 
 function compareLevenshtein(a: string, b: string): number {
     if (!a || !b) return a?.length || b?.length;
@@ -64,34 +69,77 @@ async function fetchResources(client): Promise<boolean> {
     return false;
 }
 
+function isValidUrl(url: string): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject) => {
+        try {
+            new URL(url);
+
+            https.get(url, res => {
+                if (res.statusCode < 300 && res.statusCode >= 200) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            });
+
+        } catch (err) {
+            resolve(false);
+        }
+    });
+}
+
+function getBestFormat(url: string): Promise<string> {
+    return new Promise<string>(resolve => {
+        getInfo(url).then(info => {
+            let formats = info.formats;
+            const filter = (format: videoFormat): boolean => format.audioBitrate && format.isHLS && format.qualityLabel === VID_QUALITY;
+            formats = formats
+                .filter(filter)
+                .sort((a, b) => b.audioBitrate - a.audioBitrate);
+            resolve((formats.find(format => !format.bitrate) || formats[0]).url);
+        });
+    });
+}
+
 export default class MemSongListener extends EventEmitter {
     private url: string;
     private processId: ReturnType<typeof setTimeout>
+    private processId_2: ReturnType<typeof setTimeout>
 
     private currentSong: string;
     private lastSong: string;
     private songsPlayed: number;
     private client;
 
-    constructor(client, url: string) {
+    constructor(client) {
         super();
-        this.url = url;
         this.client = client;
     }
 
-    init(): void {
+    async init(): Promise<void> {
+        do {
+            this.url = await getBestFormat(STREAM_URL);
+        } while (!(await isValidUrl(this.url)));
+
         if (!fs.existsSync('temp')) fs.mkdirSync('temp');
-        this.client.set('stream_url', this.url, { expire: 30 }).then(() => {
-            this.songsPlayed = 0;
-            checkValue(this.client, 'current_song').then(async song => {
-                if (song) this.currentSong = song.toString();
-                let success = false;
-                do {
-                    success = await fetchResources(this.client);
-                } while (!success);
-                this.processId = setInterval(this.loop.bind(this), 5000);
-            });
-        });
+        await this.client.set('stream_url', this.url, { expire: 30 });
+        this.songsPlayed = 0;
+        const song = await checkValue(this.client, 'current_song');
+        if (song) this.currentSong = song.toString();
+        let success = false;
+        do {
+            success = await fetchResources(this.client);
+        } while (!success);
+        this.processId = setInterval(this.loop.bind(this), 5000);
+        this.processId_2 = setInterval(async () => {
+            do {
+                this.url = await getBestFormat(STREAM_URL);
+            } while (!(await isValidUrl(this.url)));
+
+            this.emit('url', this.url);
+        }, 3600000 * 6);
+
+        this.emit('url', this.url);
     }
 
     loop(): void {
@@ -112,6 +160,7 @@ export default class MemSongListener extends EventEmitter {
 
     end(): void {
         clearInterval(this.processId);
+        clearInterval(this.processId_2);
     }
 
     getCurrentSong(): string {
