@@ -2,6 +2,7 @@ import memjs from 'memjs';
 import { exec } from 'child_process';
 import { EventEmitter } from 'events';
 import * as fs from 'fs';
+import * as http from 'https';
 
 const MEMCACHIER_USERNAME = process.env['MEMCACHIER_USERNAME'];
 const MEMCACHIER_PASSWORD = process.env['MEMCACHIER_PASSWORD'];
@@ -129,7 +130,9 @@ export default class SongChangeListener extends EventEmitter {
                 this.emit('change', this.currentSong);
             });
         }).catch(err => {
-            console.log(err);
+            http.get(this.url, res => {
+                console.log(res.statusCode);
+            });
         });
     }
 

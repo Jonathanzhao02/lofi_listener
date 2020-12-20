@@ -153,6 +153,7 @@ export default class MemSongListener extends EventEmitter {
                 do {
                     success = await fetchResources(this.client);
                 } while (!success);
+                console.log(this.currentSong);
                 this.emit('change', this.currentSong, this.lastSong);
             }
         });
