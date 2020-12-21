@@ -24,7 +24,7 @@ export default class StatsCommand extends Command {
             .addField('\u200B', '**Current Session**')
             .addField('⏱️ Runtime', etimeLabeled(this.client.etime()))
             .addField('🎶 Songs Played', this.client.getSongsPlayed())
-            .addField('📅 Up Since', this.client.getStartDate().toUTCString())
+            .addField('📅 Up Since', this.client.readyAt.toUTCString())
             .addField('\u200B', '**Totals**')
             .addField('⏱️ Runtime', etimeLabeled(this.client.totalEtime()))
             .addField('🎶 Songs Played', this.client.getTotalSongsPlayed());

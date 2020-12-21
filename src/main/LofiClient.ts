@@ -23,7 +23,6 @@ export default class LofiClient extends AkairoClient {
     private listenerHandler: ListenerHandler;
     private broadcast: VoiceBroadcast;
     private servers: Map<Snowflake, Server>;
-    private startTime: number;
     private totalTime: number;
     private songListener: MemSongListener;
     private songsPlayed: number;
@@ -79,7 +78,6 @@ export default class LofiClient extends AkairoClient {
 
         this.broadcast = this.voice.createBroadcast();
         this.servers = new Map<Snowflake, Server>();
-        this.startTime = Date.now();
         this.songsPlayed = 0;
 
         this.commandHandler.useInhibitorHandler(this.inhibitorHandler);
@@ -92,7 +90,7 @@ export default class LofiClient extends AkairoClient {
     }
 
     async saveStats(): Promise<void> {
-        await this.provider.set('me', 'data.totalTime', Date.now() - this.startTime + this.totalTime);
+        await this.provider.set('me', 'data.totalTime', Date.now() - this.readyTimestamp + this.totalTime);
         await this.provider.set('me', 'data.totalSongs', this.songsPlayed + this.totalSongsPlayed);
 
         for (const [id, server] of this.servers) {
@@ -175,15 +173,11 @@ export default class LofiClient extends AkairoClient {
     }
 
     etime(): number {
-        return Date.now() - this.startTime;
+        return Date.now() - this.readyTimestamp;
     }
 
     totalEtime(): number {
-        return Date.now() - this.startTime + this.totalTime;
-    }
-
-    getStartDate(): Date {
-        return new Date(this.startTime);
+        return Date.now() - this.readyTimestamp + this.totalTime;
     }
 
     getBroadcast(): VoiceBroadcast {

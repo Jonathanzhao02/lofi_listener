@@ -22,7 +22,6 @@ function extractLatestGif(url: string): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
         exec(`ffmpeg -i ${url} -hide_banner -loglevel fatal -vframes 30 -vf fps=15,scale=960:-1,select='not(mod(n\\,3))' -y temp/latest.gif`, (err, stdout, stderr) => {
             if (err || stderr) {
-                console.log(`err: ${err ? err : stderr}`);
                 resolve(false);
             } else {
                 resolve(true);
@@ -35,7 +34,6 @@ function extractLatestFrame(url: string): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
         exec(`ffmpeg -i ${url} -hide_banner -loglevel fatal -vframes 1 -y temp/latest.jpg`, (err, stdout, stderr) => {
             if (err || stderr) {
-                console.log(`err: ${err ? err : stderr}`);
                 resolve(false);
             } else {
                 resolve(true);
@@ -50,7 +48,6 @@ function extractLatestText(url: string): Promise<string> {
             if (hasNewestFrame) {
                 exec('python tesseract-backend/main.py temp/latest.jpg', (err, stdout, stderr) => {
                     if (err || stderr) {
-                        console.log(`err: ${err ? err : stderr}`);
                         reject('Failed to run tesseract');
                     } else {
                         resolve(extractSong(stdout));
